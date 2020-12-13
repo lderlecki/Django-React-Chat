@@ -1,8 +1,8 @@
 import React, {Component} from "react";
 import {render} from "react-dom";
+import {Container} from '@material-ui/core'
 
 function App() {
-    console.log('app \n\n\n')
   return (
     <div className="App">
       <header className="App-header">
@@ -11,6 +11,10 @@ function App() {
     </div>
   );
 }
+
 const appDiv = document.getElementById("app");
-render(<App />, appDiv)
+render(
+    <App />
+    , appDiv)
+
 export default App;

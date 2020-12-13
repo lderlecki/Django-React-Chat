@@ -1,5 +1,4 @@
-FROM python:alpine
-RUN apk --update add --no-cache gcc libc-dev postgresql-dev
+FROM python:3
 ENV PYTHONUNBUFFERED 1
 RUN mkdir /code
 WORKDIR /code
