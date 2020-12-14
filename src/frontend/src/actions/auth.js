@@ -4,19 +4,60 @@ import {
     LOGIN_FAIL,
     USER_LOADED_SUCCESS,
     USER_LOADED_FAIL,
+    AUTHENTICATED_SUCCESS,
+    AUTHENTICATED_FAIL,
+    LOGOUT,
 } from './types';
+
+export const checkAuthenticated = () => async dispatch => {
+    if (localStorage.getItem('access')) {
+        const config = {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            }
+        };
+
+        const body = JSON.stringify({token: localStorage.getItem('access')});
+        try {
+            const response = await axios.post('/auth/jwt/verify/', body, config)
+            console.log('response jwt verify', response)
+            if (response.status !== 401) {
+                console.log('response.status code != 401', response)
+                dispatch({
+                    type: AUTHENTICATED_SUCCESS,
+                })
+            } else {
+                dispatch({
+                    type: AUTHENTICATED_FAIL
+                })
+            }
+
+        } catch (err) {
+            dispatch({
+                type: AUTHENTICATED_FAIL
+            })
+        }
+
+    } else {
+        dispatch({
+            type: AUTHENTICATED_FAIL
+        })
+    }
+}
 
 export const load_user = () => async dispatch => {
     if (localStorage.getItem('access')) {
         const config = {
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `JWT ${localStorage.getItem('access')}`,
-            'Accept': 'application/json',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `JWT ${localStorage.getItem('access')}`,
+                'Accept': 'application/json',
             }
         };
         try {
             const response = await axios.get('/auth/users/me/', config);
+            console.log(response);
             dispatch({
                 type: USER_LOADED_SUCCESS,
                 payload: response.data
@@ -55,3 +96,9 @@ export const login = (email, password) => async dispatch => {
     }
 
 };
+
+export const logout = () => dispatch => {
+    dispatch({
+        type: LOGOUT,
+    });
+}

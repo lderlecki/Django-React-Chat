@@ -1,6 +1,7 @@
 version: '3'
 services:
   db:
+    restart: always
     image: postgres
     environment:
       - POSTGRES_DB=${DB_NAME}
@@ -8,6 +9,7 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_HOST=${DB_HOST}
   django:
+    restart: always
     build: ./
     command: python manage.py runserver 0.0.0.0:8100
     volumes:
@@ -17,6 +19,7 @@ services:
     ports:
       - 8100:8100
   frontend:
+    restart: always
     build: ./frontend
     volumes:
     - ./frontend:/app
