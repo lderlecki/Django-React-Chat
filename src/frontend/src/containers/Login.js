@@ -74,13 +74,6 @@ const Login = ({login, isAuthenticated}) => {
                         <Link to={'/signup'} variant='body2'>Don't have an account?</Link>
                     </Grid>
                 </Grid>
-
-                {/*<p className='mt-3'>*/}
-                {/*    Don't have an account? <Link to='/signup'>Signup</Link>*/}
-                {/*</p>*/}
-                {/*<p className='mt-3'>*/}
-                {/*    Forgot your password? <Link to='/reset-password'>Reset Password</Link>*/}
-                {/*</p>*/}
             </div>
         </Container>
     )

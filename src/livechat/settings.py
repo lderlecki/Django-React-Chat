@@ -85,7 +85,7 @@ ASGI_APPLICATION = 'livechat.routing.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': env('DB_NAME'),
         'USER': env('DB_USER'),
         'PASSWORD': env('DB_PASSWORD'),
@@ -152,22 +152,23 @@ REST_FRAMEWORK = {
 
 SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('JWT',),
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=15),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
 
 DJOSER = {
-    # 'LOGIN_FIELD': 'email',
+    'LOGIN_FIELD': 'email',
     'USER_CREATE_PASSWORD_RETYPE': True,
     'USERNAME_CHANGED_EMAIL_CONFIRMATION': True,
     'PASSWORD_CHANGED_EMAIL_CONFIRMATION': True,
-    'SEND_CONFIRMATION_EMAIL': False,
+    'SEND_CONFIRMATION_EMAIL': True,
     'SET_USERNAME_RETYPE': True,
     'PASSWORD_RESET_CONFIRM_URL': 'password/reset/confirm/{uid}/{token}',
+    'PASSWORD_RESET_CONFIRM_RETYPE': True,
     'SET_PASSWORD_RETYPE': True,
     'USERNAME_RESET_CONFIRM_URL': 'email/reset/confirm/{uid}/{token}',
     'ACTIVATION_URL': 'activate/{uid}/{token}',
-    'SEND_ACTIVATION_EMAIL': False,
+    'SEND_ACTIVATION_EMAIL': True,
     'SERIALIZERS': {
         'user_create': 'accounts.serializers.UserCreateSerializer',
         'user': 'accounts.serializers.UserCreateSerializer',

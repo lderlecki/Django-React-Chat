@@ -1,13 +1,15 @@
 version: '3'
 services:
   db:
-    restart: always
     image: postgres
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
     environment:
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_HOST=${DB_HOST}
   django:
     restart: always
     build: ./
@@ -25,3 +27,6 @@ services:
     - ./frontend:/app
     depends_on:
       - django
+volumes:
+  db-data:
+#    driver: local
