@@ -10,6 +10,7 @@ import Layout from "./hocs/Layout";
 
 import Workspace from "./containers/workspace/Workspace";
 import WorkspacesMain from "./containers/workspace/WorkspacesMain";
+import WorkspaceCreate from "./containers/workspace/WorkspaceCreate";
 
 import {Provider} from 'react-redux';
 import store from "./store";
@@ -26,6 +27,7 @@ const App = () => (
                     <Route exact path='/activate/:uid/:token' component={Activate}/>
 
                     <Route exact path='/workspaces' component={WorkspacesMain}/>
+                    <Route exact path='/workspaces/create' component={WorkspaceCreate}/>
                     <Route exact path='/workspaces/:workspace/:room' component={Workspace}/>
 
                     <Route exact path='/*' component={Home}/>

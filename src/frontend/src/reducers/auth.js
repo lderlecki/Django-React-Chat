@@ -13,7 +13,7 @@ import {
     SIGNUP_FAIL,
     ACTIVATION_SUCCESS,
     ACTIVATION_FAIL,
-    LOGOUT,
+    LOGOUT, REFRESH_TOKEN_SUCCESS, REFRESH_TOKEN_FAILED,
 } from '../actions/types';
 
 const initialState = {
@@ -39,11 +39,19 @@ export default function (state = initialState, action) {
             }
         case LOGIN_SUCCESS:
             localStorage.setItem('access', payload.access)
+            localStorage.setItem('refresh', payload.refresh)
             return {
                 ...state,
                 isAuthenticated: true,
                 access: payload.access,
                 refresh: payload.refresh
+            }
+        case REFRESH_TOKEN_SUCCESS:
+            localStorage.setItem('access', payload.access)
+            return {
+                ...state,
+                isAuthenticated: true,
+                access: payload.access,
             }
         case SIGNUP_SUCCESS:
             return {
@@ -64,13 +72,16 @@ export default function (state = initialState, action) {
         case LOGIN_FAIL:
         case SIGNUP_FAIL:
         case LOGOUT:
+        case REFRESH_TOKEN_FAILED:
             localStorage.removeItem('access');
+            localStorage.removeItem('refresh');
             return {
                 ...state,
                 isAuthenticated: false,
                 access: null,
                 refresh: null,
-                user: null
+                user: null,
+                errorMsg: payload
             }
         case PASSWORD_RESET_SUCCESS:
         case PASSWORD_RESET_FAIL:

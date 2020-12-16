@@ -2,9 +2,12 @@ import React, {useState} from 'react';
 import {Link, Redirect} from 'react-router-dom';
 import {connect} from 'react-redux'
 import {Button, Container, CssBaseline, FormControl, Grid, TextField, Typography} from "@material-ui/core";
+import Alert from "@material-ui/lab/Alert";
+
 import {login} from "../actions/auth";
 
-const Login = ({login, isAuthenticated}) => {
+const Login = ({login, isAuthenticated, errorMsg}) => {
+    // console.log('is authenticated in login: ', isAuthenticated)
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -13,9 +16,10 @@ const Login = ({login, isAuthenticated}) => {
     const onChange = e => setFormData({...formData, [e.target.name]: e.target.value});
     const onSubmit = e => {
         e.preventDefault();
-        login(email, password)
-    };
+        login(email, password);
 
+    };
+    // console.log('error: ', errorMsg)
     // Is user authenticated?
     // Redirect them to home page
     if (isAuthenticated) {
@@ -31,6 +35,11 @@ const Login = ({login, isAuthenticated}) => {
                 </Typography>
                 <p>Sign into your Account</p>
                 <form className='form' onSubmit={e => onSubmit(e)}>
+                    {errorMsg? (
+                        <Alert severity='error'>
+                            {errorMsg}
+                        </Alert>
+                    ) : null}
                     <FormControl component="fieldset">
                         <TextField
                             required
@@ -81,6 +90,7 @@ const Login = ({login, isAuthenticated}) => {
 
 const mapStateToProps = state => ({
     isAuthenticated: state.auth.isAuthenticated,
+    errorMsg: state.auth.errorMsg,
 
 })
 

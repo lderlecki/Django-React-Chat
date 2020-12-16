@@ -29,7 +29,6 @@ export const checkAuthenticated = () => async dispatch => {
             const response = await axios.post('/auth/jwt/verify/', body, config)
             console.log('response jwt verify', response)
             if (response.status !== 401) {
-                console.log('response.status code != 401', response)
                 dispatch({
                     type: AUTHENTICATED_SUCCESS,
                 })
@@ -63,7 +62,6 @@ export const load_user = () => async dispatch => {
         };
         try {
             const response = await axios.get('/auth/users/me/', config);
-            console.log(response);
             dispatch({
                 type: USER_LOADED_SUCCESS,
                 payload: response.data
@@ -79,6 +77,30 @@ export const load_user = () => async dispatch => {
         })
     }
 };
+// export const login = (email, password) => async dispatch => {
+//     const config = {
+//         headers: {
+//             'Content-Type': 'application/json'
+//         }
+//     };
+//     const body = JSON.stringify({email, password});
+//     try {
+//         const response = await axios.post('/auth/jwt/create/', body, config);
+//         dispatch({
+//             type: LOGIN_SUCCESS,
+//             payload: response.data
+//         });
+//         dispatch(load_user())
+//
+//     } catch (err) {
+//         console.log('error login ', err.response.data.detail);
+//         dispatch({
+//             type: LOGIN_FAIL,
+//             payload: err
+//         })
+//     }
+// };
+
 export const login = (email, password) => async dispatch => {
     const config = {
         headers: {
@@ -86,22 +108,21 @@ export const login = (email, password) => async dispatch => {
         }
     };
     const body = JSON.stringify({email, password});
-
-    try {
-        const response = await axios.post('/auth/jwt/create/', body, config);
-        dispatch({
-            type: LOGIN_SUCCESS,
-            payload: response.data
-        });
-
-        dispatch(load_user())
-    } catch (err) {
-        dispatch({
-            type: LOGIN_FAIL
+    await axios.post('/auth/jwt/create/', body, config)
+        .then((response) => {
+            dispatch({
+                type: LOGIN_SUCCESS,
+                payload: response.data
+            });
+            dispatch(load_user())
         })
-    }
-
-};
+        .catch((err) => {
+            dispatch({
+                type: LOGIN_FAIL,
+                payload: err.response.data.detail
+            })
+        })
+}
 
 export const signup = (name, email, password, re_password) => async dispatch => {
     const config = {
@@ -126,7 +147,7 @@ export const signup = (name, email, password, re_password) => async dispatch => 
 }
 
 export const verify = (uid, token) => async dispatch => {
-        const config = {
+    const config = {
         headers: {
             'Content-Type': 'application/json'
         }
