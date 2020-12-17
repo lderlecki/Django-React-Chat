@@ -13,7 +13,6 @@ const ResetPassword = (props) => {
     const onChange = e => setFormData({...formData, [e.target.name]: e.target.value});
     const onSubmit = e => {
         e.preventDefault();
-        console.log('on ssubmit')
         props.reset_password(email)
         setRequestSent(true);
     };

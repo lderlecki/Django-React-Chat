@@ -27,7 +27,6 @@ export const checkAuthenticated = () => async dispatch => {
         const body = JSON.stringify({token: localStorage.getItem('access')});
         try {
             const response = await axios.post('/auth/jwt/verify/', body, config)
-            console.log('response jwt verify', response)
             if (response.status !== 401) {
                 dispatch({
                     type: AUTHENTICATED_SUCCESS,
@@ -93,7 +92,6 @@ export const load_user = () => async dispatch => {
 //         dispatch(load_user())
 //
 //     } catch (err) {
-//         console.log('error login ', err.response.data.detail);
 //         dispatch({
 //             type: LOGIN_FAIL,
 //             payload: err

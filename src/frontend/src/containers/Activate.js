@@ -17,9 +17,6 @@ const Activate = ({match, verify}) => {
         }
     )
 
-
-
-
     return (
         <Container>
             <CssBaseline />

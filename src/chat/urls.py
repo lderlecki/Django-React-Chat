@@ -5,10 +5,10 @@ from .views import WorkspaceCreateView, RoomCreateView, WorkspaceListView, Works
 urlpatterns = [
     # POST
     path('create/', WorkspaceCreateView.as_view()),
-    path('<slug:workspace_slug>/create/', RoomCreateView.as_view()),
+    path('<str:workspace_code>/create/', RoomCreateView.as_view()),
 
     # GET
     path('list/', WorkspaceListView.as_view()),
-    path('<slug:workspace_slug>/', WorkspaceDetailView.as_view()),
-    # path('<slug:workspace_slug>/<slug:room_slug>/', RoomView.as_view()),
+    path('<str:workspace_code>/', WorkspaceDetailView.as_view()),
+    # path('<code:workspace_code>/<code:room_code>/', RoomView.as_view()),
 ]

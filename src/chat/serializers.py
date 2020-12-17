@@ -6,20 +6,20 @@ from .models import Workspace, Room
 class WorkspaceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Workspace
-        fields = ('name', 'host', 'is_private', 'users', )
+        fields = ('name', 'host', 'is_private', 'users', 'code')
 
 
 class WorkspaceCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Workspace
-        fields = ('name', 'is_private', 'password', )
+        fields = ('name', 'is_private', 'password')
         extra_kwargs = {'password': {'write_only': True}}
 
 
 class RoomSerializer(serializers.ModelSerializer):
     class Meta:
         model = Room
-        fields = ('name', 'host', 'is_private', 'users', 'workspace', )
+        fields = ('name', 'host', 'is_private', 'users', 'workspace', 'code')
 
 
 class RoomCreateSerializer(serializers.ModelSerializer):
@@ -34,4 +34,4 @@ class WorkspaceDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Workspace
-        fields = ('name', 'host', 'is_private', 'users', 'rooms')
+        fields = ('name', 'host', 'is_private', 'users', 'rooms', 'code')

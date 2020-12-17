@@ -3,8 +3,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Workspace, Room
-from .serializers import WorkspaceCreateSerializer, WorkspaceSerializer, RoomCreateSerializer, RoomSerializer, \
+from .serializers import (
+    WorkspaceCreateSerializer,
+    WorkspaceSerializer,
+    RoomCreateSerializer,
+    RoomSerializer,
     WorkspaceDetailSerializer
+)
 
 
 class WorkspaceCreateView(APIView):
@@ -14,15 +19,15 @@ class WorkspaceCreateView(APIView):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             name = serializer.validated_data.get('name')
-            is_private = serializer.validated_data.get('is_private')
-            password = serializer.validated_data.get('password')
+            host = serializer.validated_data.get('host')
             workspace = Workspace.objects.filter(host=request.user, name=name)
 
             if workspace.exists():
-                if password:
-                    workspace.update(name=name, is_private=is_private, password=password)
-                else:
-                    workspace.update(name=name, is_private=is_private)
+                if host and not workspace.get(host=request.user):
+                    return Response(
+                        {'host': 'Only current host can pass host to another user'}, status=status.HTTP_403_FORBIDDEN
+                    )
+                workspace.update(**serializer.validated_data)
                 return Response(WorkspaceSerializer(workspace[0]).data, status=status.HTTP_200_OK)
 
             workspace = Workspace.objects.create(**serializer.validated_data, host=request.user)
@@ -33,7 +38,7 @@ class WorkspaceCreateView(APIView):
 
 class WorkspaceListView(APIView):
     def get(self, request):
-        # Check if request user is a member of a workspace with a given slug
+        # Check if request user is a member of a workspace with a given code
         workspace = request.user.workspace_set.all()
         if not workspace.exists():
             return Response({'workspace': 'No workspaces available.'}, status=status.HTTP_200_OK)
@@ -41,29 +46,32 @@ class WorkspaceListView(APIView):
 
 
 class WorkspaceDetailView(APIView):
-
-    def get(self, request, workspace_slug):
-        workspace = request.user.workspace_set.get(slug=workspace_slug)
+    def get(self, request, workspace_code):
+        workspace = request.user.workspace_set.get(code=workspace_code)
         if not workspace:
             return Response({'workspace': 'Such workspace does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+
+        ret_data = WorkspaceDetailSerializer(workspace).data
+        ret_data['is_owner'] = request.user == workspace.host
+
         return Response(WorkspaceDetailSerializer(workspace).data, status=status.HTTP_200_OK)
 
 
 # class RoomView(APIView):
-#     def get(self, request, workspace_slug, room_slug):
-#         workspace = request.user.workspace_set.filter(slug=workspace_slug)
+#     def get(self, request, workspace_code, room_code):
+#         workspace = request.user.workspace_set.filter(code=workspace_code)
 #         # rooms = workspace.
 
 
 class RoomCreateView(APIView):
     serializer_class = RoomCreateSerializer
 
-    def post(self, request, workspace_slug):
+    def post(self, request, workspace_code):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             name = serializer.validated_data.pop('name', None)
             new_name = name
-            workspace = request.user.workspace_set.filter(slug=workspace_slug)
+            workspace = request.user.workspace_set.filter(code=workspace_code)
 
             if not workspace:
                 return Response({'workspace': 'Room must belong to a workspace.'}, status=status.HTTP_404_NOT_FOUND)

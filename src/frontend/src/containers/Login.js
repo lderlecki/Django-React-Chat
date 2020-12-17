@@ -7,7 +7,6 @@ import Alert from "@material-ui/lab/Alert";
 import {login} from "../actions/auth";
 
 const Login = ({login, isAuthenticated, errorMsg}) => {
-    // console.log('is authenticated in login: ', isAuthenticated)
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -19,7 +18,7 @@ const Login = ({login, isAuthenticated, errorMsg}) => {
         login(email, password);
 
     };
-    // console.log('error: ', errorMsg)
+
     // Is user authenticated?
     // Redirect them to home page
     if (isAuthenticated) {

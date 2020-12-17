@@ -3,6 +3,6 @@ import auth from "./auth";
 import chat from "./chat";
 
 export default combineReducers({
+    chat,
     auth,
-    chat
 });
