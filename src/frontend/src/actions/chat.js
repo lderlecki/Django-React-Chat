@@ -9,6 +9,7 @@ import {
     ROOM_LOADED_SUCCESS,
     ROOM_LOADED_FAIL,
 } from './types'
+import {getCookie} from "./utils";
 
 
 export const load_workspaces = () => async dispatch => {
@@ -39,23 +40,27 @@ export const load_workspaces = () => async dispatch => {
     }
 };
 
-export const createWorkspace = (name, password) => async dispatch => {
+export const createWorkspace = (name, is_private, password) => async dispatch => {
+    // const csrftoken = getCookie('csrftoken')
     const config = {
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `JWT ${localStorage.getItem('access')}`
+            'Authorization': `JWT ${localStorage.getItem('access')}`,
+            // 'X-CSRFToken': csrftoken
         }
     }
-    const body = JSON.stringify({name, password});
+    const body = JSON.stringify({name, is_private, password});
     try {
-        const response = await axios.post('/api/workspaces/create/', body, config)
+        const response = await axios.post('/api/workspace/create/', body, config)
+        console.log(response.data)
         dispatch({
             type: WORKSPACE_CREATE_SUCCESS,
             payload: response.data
         })
+        // dispatch(load_workspaces())
     } catch (err) {
         dispatch({
-            type: WORKSPACE_CREATE_FAIL
+            type: WORKSPACE_CREATE_FAIL,
         })
     }
 }

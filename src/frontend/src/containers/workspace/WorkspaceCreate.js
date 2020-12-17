@@ -15,12 +15,11 @@ import {
 import {WORKSPACE_PRIVATE_TOOLTIP} from "./tooltips";
 import {createWorkspace} from "../../actions/chat";
 
-const WorkspaceCreate = ({isAuthenticated}) => {
+const WorkspaceCreate = ({ createWorkspace, workspace, room, errorMsg }) => {
     const [workspaceCreated, setWorkspaceCreated] = useState(false);
-    const [checked, setChecked] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
-        is_private: checked,
+        is_private: false,
         password: '',
     });
     const {name, is_private, password} = formData;
@@ -36,7 +35,9 @@ const WorkspaceCreate = ({isAuthenticated}) => {
     };
 
     if (workspaceCreated) {
-        return <Redirect to='/login'/>
+        if (workspace && room) {
+            return <Redirect to={`/${workspace}/${room}`} />
+        }
     }
 
     return (
@@ -66,7 +67,6 @@ const WorkspaceCreate = ({isAuthenticated}) => {
                     </FormControl>
                     <FormControl component="fieldset">
                         <TextField
-                            required
                             fullWidth
                             variant='outlined'
                             id='password'
@@ -103,9 +103,11 @@ const WorkspaceCreate = ({isAuthenticated}) => {
     )
 }
 
-// const mapStateToProps = state => ({
-//     isAuthenticated: state.auth.isAuthenticated,
-//
-// })
+const mapStateToProps = state => ({
+    workspace: state.chat.workspace,
+    room: state.chat.currentRoom,
+    errorMsg: state.auth.errorMsg,
 
-export default connect(null, {})(WorkspaceCreate);
+})
+
+export default connect(mapStateToProps, {createWorkspace})(WorkspaceCreate);

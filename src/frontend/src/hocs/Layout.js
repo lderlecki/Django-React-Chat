@@ -1,4 +1,5 @@
 import React, {useEffect} from "react";
+import { Redirect} from 'react-router-dom';
 import Navbar from '../components/Navbar'
 import {connect} from 'react-redux';
 import {checkAuthenticated, load_user} from '../actions/auth'
@@ -10,7 +11,7 @@ const Layout = (props) => {
                 await props.checkAuthenticated();
                 await props.load_user();
             } catch (err) {
-
+                return(<Redirect to='/login' />)
             }
         }
         fetchData();

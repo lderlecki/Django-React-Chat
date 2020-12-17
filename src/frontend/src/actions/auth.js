@@ -14,6 +14,7 @@ import {
     PASSWORD_RESET_CONFIRM_FAIL,
     LOGOUT, SIGNUP_SUCCESS, SIGNUP_FAIL,
 } from './types';
+import {load_workspaces} from "./chat";
 
 export const checkAuthenticated = () => async dispatch => {
     if (localStorage.getItem('access')) {
@@ -65,6 +66,7 @@ export const load_user = () => async dispatch => {
                 type: USER_LOADED_SUCCESS,
                 payload: response.data
             })
+            dispatch(load_workspaces())
         } catch (err) {
             dispatch({
                 type: USER_LOADED_FAIL

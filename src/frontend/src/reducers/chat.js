@@ -1,4 +1,9 @@
-import {WORKSPACE_CREATE_SUCCESS, WORKSPACES_FETCHED_FAIL, WORKSPACES_FETCHED_SUCCESS} from "../actions/types";
+import {
+    WORKSPACE_CREATE_SUCCESS,
+    WORKSPACES_FETCHED_FAIL,
+    WORKSPACES_FETCHED_SUCCESS,
+    WORKSPACE_CREATE_FAIL,
+} from "../actions/types";
 
 const initialState = {
     workspaces: null,
@@ -33,8 +38,14 @@ export default function (state = initialState, action) {
             return {
                 ...state,
                 workspace: payload.workspace,
+                workspaces: [...state.workspaces, payload],
                 room: payload.room,
                 isOwner: payload.is_owner,
+            }
+
+        case WORKSPACE_CREATE_FAIL:
+            return {
+                ...state,
             }
         default:
             return state

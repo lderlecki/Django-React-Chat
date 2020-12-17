@@ -28,7 +28,7 @@ const App = () => (
 
                     <Route exact path='/workspaces' component={WorkspacesMain}/>
                     <Route exact path='/workspaces/create' component={WorkspaceCreate}/>
-                    <Route exact path='/workspaces/:workspace/:room' component={Workspace}/>
+                    <Route exact path='/:workspace/:room' component={Workspace}/>
 
                     <Route exact path='/*' component={Home}/>
                 </Switch>

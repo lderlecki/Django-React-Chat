@@ -54,19 +54,17 @@ const useStyles = makeStyles({
     }
 })
 
-const WorkspacesMain = ({load_workspaces, user, workspaces}) => {
+const WorkspacesMain = ({ user, workspaces}) => {
     useEffect(() => {
-        if (user) {
-            load_workspaces();
-        }
-    }, [user]);
+        load_workspaces();
+    }, [workspaces]);
 
     const showSpinner = (
         <CircularProgress/>
     )
     const classes = useStyles();
     const generateTemplate = (workspace) => (
-        <a className={classes.itemLink} href='/workspaces/123/321'>
+        <a className={classes.itemLink} href='/123/321'>
             <div className={classes.itemBlock}>
                 <div className={classes.item}>
                     <div style={{padding: "15px"}}>
