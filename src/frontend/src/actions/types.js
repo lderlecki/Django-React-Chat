@@ -1,6 +1,8 @@
 // Auth types
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
 export const LOGIN_FAIL = 'LOGIN_FAIL';
+export const USER_IS_LOADING = 'USER_IS_LOADING';
+export const USER_LOADING_FINISHED = 'USER_LOADING_FINISHED';
 export const SIGNUP_SUCCESS = 'SIGNUP_SUCCESS';
 export const SIGNUP_FAIL = 'SIGNUP_FAIL';
 export const ACTIVATION_SUCCESS = 'ACTIVATION_SUCCESS';

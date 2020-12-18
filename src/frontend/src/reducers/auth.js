@@ -1,6 +1,8 @@
 import {
     LOGIN_SUCCESS,
     LOGIN_FAIL,
+    USER_IS_LOADING,
+    USER_LOADING_FINISHED,
     USER_LOADED_SUCCESS,
     USER_LOADED_FAIL,
     AUTHENTICATED_SUCCESS,
@@ -20,6 +22,7 @@ const initialState = {
     access: localStorage.getItem('access'),
     refresh: localStorage.getItem('refresh'),
     isAuthenticated: null,
+    isLoading: false,
     user: null,
 }
 
@@ -27,10 +30,16 @@ export default function (state = initialState, action) {
     const {type, payload} = action;
 
     switch (type) {
+        case USER_IS_LOADING:
+            return {
+                ...state,
+                isLoading: true
+            }
+
         case AUTHENTICATED_SUCCESS:
             return {
                 ...state,
-                isAuthenticated: true
+                isAuthenticated: true,
             }
         case AUTHENTICATED_FAIL:
             return {
@@ -62,12 +71,22 @@ export default function (state = initialState, action) {
         case USER_LOADED_SUCCESS:
             return {
                 ...state,
-                user: payload
+                user: payload,
+                isAuthenticated: true,
             }
+
+        case USER_LOADING_FINISHED:
+            return {
+                ...state,
+                isLoading: false,
+            }
+
         case USER_LOADED_FAIL:
             return {
                 ...state,
-                user: null
+                user: null,
+                isAuthenticated: false,
+                isLoading: false,
             }
         case LOGIN_FAIL:
         case SIGNUP_FAIL:
@@ -81,7 +100,7 @@ export default function (state = initialState, action) {
                 access: null,
                 refresh: null,
                 user: null,
-                errorMsg: payload
+                errorMsg: payload,
             }
         case PASSWORD_RESET_SUCCESS:
         case PASSWORD_RESET_FAIL:
@@ -89,8 +108,8 @@ export default function (state = initialState, action) {
         case PASSWORD_RESET_CONFIRM_FAIL:
         case ACTIVATION_SUCCESS:
         case ACTIVATION_FAIL:
-            return{
-                ...state
+            return {
+                ...state,
             }
         default:
             return state

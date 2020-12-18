@@ -8,8 +8,10 @@ import {
 const initialState = {
     workspaces: null,
     workspace: null,
-    room: null,
+    currentRoom: null,
     isOwner: null,
+    workspacesLoaded: false,
+
 
 }
 
@@ -21,6 +23,7 @@ export default function (state = initialState, action) {
             return {
                 ...state,
                 workspaces: payload,
+                workspacesLoaded: true
 
             }
 
@@ -39,7 +42,7 @@ export default function (state = initialState, action) {
                 ...state,
                 workspace: payload.workspace,
                 workspaces: [...state.workspaces, payload],
-                room: payload.room,
+                room: null,
                 isOwner: payload.is_owner,
             }
 

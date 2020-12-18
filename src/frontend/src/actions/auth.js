@@ -12,12 +12,15 @@ import {
     PASSWORD_RESET_FAIL,
     PASSWORD_RESET_CONFIRM_SUCCESS,
     PASSWORD_RESET_CONFIRM_FAIL,
-    LOGOUT, SIGNUP_SUCCESS, SIGNUP_FAIL,
+    LOGOUT, SIGNUP_SUCCESS, SIGNUP_FAIL, USER_IS_LOADING, USER_LOADING_FINISHED,
 } from './types';
 import {load_workspaces} from "./chat";
 
 export const checkAuthenticated = () => async dispatch => {
     if (localStorage.getItem('access')) {
+        dispatch({
+            type: USER_IS_LOADING
+        })
         const config = {
             headers: {
                 'Content-Type': 'application/json',
@@ -52,6 +55,9 @@ export const checkAuthenticated = () => async dispatch => {
 }
 
 export const load_user = () => async dispatch => {
+    dispatch({
+        type: USER_IS_LOADING
+    })
     if (localStorage.getItem('access')) {
         const config = {
             headers: {
@@ -62,11 +68,16 @@ export const load_user = () => async dispatch => {
         };
         try {
             const response = await axios.get('/auth/users/me/', config);
+            // dispatch({
+            //     type: AUTHENTICATED_SUCCESS
+            // })
             dispatch({
                 type: USER_LOADED_SUCCESS,
                 payload: response.data
             })
-            dispatch(load_workspaces())
+            dispatch({
+                type: USER_LOADING_FINISHED
+            })
         } catch (err) {
             dispatch({
                 type: USER_LOADED_FAIL
@@ -213,7 +224,7 @@ export const reset_password_confirm = (uid, token, new_password, re_new_password
 
 }
 
-export const logout = () => dispatch => {
+export const logout = () => async dispatch => {
     dispatch({
         type: LOGOUT,
     });

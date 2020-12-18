@@ -1,26 +1,26 @@
 import React, {useState} from 'react';
-import {Redirect} from 'react-router-dom';
+import {Link, Redirect} from 'react-router-dom';
 import {connect} from 'react-redux'
 import {
     Button,
     Container,
     CssBaseline,
     FormControl,
+    Grid,
     TextField,
     Typography,
     Checkbox,
-    FormControlLabel,
-    Tooltip
+    FormControlLabel, Tooltip
 } from "@material-ui/core";
 import {WORKSPACE_PRIVATE_TOOLTIP} from "./tooltips";
 import {createWorkspace} from "../../actions/chat";
 
-const WorkspaceCreate = ({ createWorkspace, workspace, room, errorMsg }) => {
-    const [workspaceCreated, setWorkspaceCreated] = useState(false);
+const RoomCreate = ({ createWorkspace, workspace, room, errorMsg }) => {
+    const [roomCreated, setRoomCreated] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
-        is_private: false,
         password: '',
+        is_private: false,
     });
     const {name, is_private, password} = formData;
     const onChange = e => setFormData({...formData, [e.target.name]: e.target.value});
@@ -31,11 +31,11 @@ const WorkspaceCreate = ({ createWorkspace, workspace, room, errorMsg }) => {
     const onSubmit = e => {
         e.preventDefault();
         createWorkspace(name, is_private, password);
-        setWorkspaceCreated(true);
+        setRoomCreated(true);
     };
 
-    if (workspaceCreated) {
-        if (workspace && room) {
+    if (roomCreated) {
+        if (room) {
             return <Redirect to={`/${workspace}/${room}`} />
         }
     }
@@ -110,4 +110,4 @@ const mapStateToProps = state => ({
 
 })
 
-export default connect(mapStateToProps, {createWorkspace})(WorkspaceCreate);
+export default connect(mapStateToProps, {createWorkspace})(RoomCreate);

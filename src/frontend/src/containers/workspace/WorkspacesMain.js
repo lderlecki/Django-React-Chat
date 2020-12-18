@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from 'react';
-import {Link} from 'react-router-dom';
+import React, {useEffect} from 'react';
+import {Link, Redirect} from 'react-router-dom';
 import {connect} from 'react-redux';
 import {Button, CircularProgress, Container, CssBaseline, makeStyles} from "@material-ui/core";
 import {load_workspaces} from "../../actions/chat";
@@ -54,17 +54,19 @@ const useStyles = makeStyles({
     }
 })
 
-const WorkspacesMain = ({ user, workspaces}) => {
+const WorkspacesMain = ({load_workspaces, auth, chat}) => {
     useEffect(() => {
         load_workspaces();
-    }, [workspaces]);
+    }, []);
 
+    const classes = useStyles();
     const showSpinner = (
         <CircularProgress/>
     )
-    const classes = useStyles();
     const generateTemplate = (workspace) => (
-        <a className={classes.itemLink} href='/123/321'>
+        // TODO: API call to /workspace.code/ and then return workspace rooms and the room,
+        //  that user should be directed to
+        <a className={classes.itemLink} href={`/${workspace.code}/321`}>
             <div className={classes.itemBlock}>
                 <div className={classes.item}>
                     <div style={{padding: "15px"}}>
@@ -76,13 +78,13 @@ const WorkspacesMain = ({ user, workspaces}) => {
         </a>
     )
     const items = []
-    if (workspaces) {
-        for (const [i, workspace] of workspaces.entries()) {
+    if (chat.workspaces) {
+        for (const [, workspace] of chat.workspaces.entries()) {
             items.push(generateTemplate(workspace))
         }
     }
 
-    const showUserWorkspaces = (userData, data) => {
+    const ShowUserWorkspaces = (userData) => {
         return (
             <div className={classes.wrapper}>
                 <section className={classes.list}>
@@ -91,7 +93,7 @@ const WorkspacesMain = ({ user, workspaces}) => {
                             Workspaces for <strong>{userData.email}</strong>
                         </h4>
                     </div>
-                    {data ? data : showSpinner}
+                    {items}
 
                 </section>
                 <div className={classes.createWorkspace}>
@@ -108,14 +110,14 @@ const WorkspacesMain = ({ user, workspaces}) => {
     return (
         <Container align='center'>
             <CssBaseline/>
-            {user ? showUserWorkspaces(user, items) : showSpinner}
+            {auth.user && chat.workspacesLoaded ? (<ShowUserWorkspaces userData={auth.user}/>) : showSpinner}
         </Container>
     )
 }
 
 const mapStateToProps = state => ({
-    user: state.auth.user,
-    workspaces: state.chat.workspaces
+    auth: state.auth,
+    chat: state.chat,
 })
 
 export default connect(mapStateToProps, {load_workspaces})(WorkspacesMain)

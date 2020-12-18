@@ -2,15 +2,15 @@ import React, {useEffect} from "react";
 import { Redirect} from 'react-router-dom';
 import Navbar from '../components/Navbar'
 import {connect} from 'react-redux';
-import {checkAuthenticated, load_user} from '../actions/auth'
+import { load_user} from '../actions/auth'
 
 const Layout = (props) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                await props.checkAuthenticated();
                 await props.load_user();
             } catch (err) {
+                console.log('layout error: ', err)
                 return(<Redirect to='/login' />)
             }
         }
@@ -25,4 +25,4 @@ const Layout = (props) => {
     );
 };
 
-export default connect(null,{ checkAuthenticated, load_user })(Layout);
+export default connect(null,{  load_user })(Layout);
