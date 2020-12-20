@@ -8,7 +8,7 @@ import ResetPasswordConfirm from "../containers/ResetPasswordConfirm";
 import Activate from "../containers/Activate";
 import WorkspacesIndex from "../containers/workspace/WorkspacesIndex";
 import WorkspaceCreate from "../containers/workspace/WorkspaceCreate";
-import WorkspaceDetail from "../containers/workspace/WorkspaceDetail";
+import ChatPage from "../containers/chat/ChatPage";
 import RoomCreate from "../containers/workspace/RoomCreate";
 import Home from "../containers/Home";
 import React from "react";
@@ -31,7 +31,7 @@ const AppRouter = () => (
 
                 <PrivateRoute exact path='/:workspace' component={WorkspaceVerify}/>
                 <PrivateRoute exact path='/:workspace/create' component={RoomCreate}/>
-                <PrivateRoute exact path='/:workspace/:room' component={WorkspaceDetail}/>
+                <PrivateRoute exact path='/:workspace/:room' component={ChatPage}/>
 
                 <Route exact path='/*' component={Home}/>
             </Switch>

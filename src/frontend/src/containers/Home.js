@@ -1,5 +1,6 @@
 import React from "react";
 import {Link} from "react-router-dom";
+import {Button} from "@material-ui/core";
 
 const Home = () => (
     <div className='container'>
@@ -8,7 +9,7 @@ const Home = () => (
             <p className="lead">This is an incredible chat app, that one day will be better than Slack.</p>
             <hr className="my-4" />
             <p>Click the login button.</p>
-            <Link className="btn btn-primary btn-lg" to="/login" role="button">Login</Link>
+            <Button size="large" variant="contained" color="primary" component={Link} to='/login'>Login</Button>
         </div>
     </div>
 );

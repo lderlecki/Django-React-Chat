@@ -1,9 +1,21 @@
-html,
-body {
-    height: 100%;
+* {
     margin: 0;
     padding: 0;
-    background-color: white!important;
+    box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+    height: 100%;
+    overflow: hidden;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    background-color: white !important;
 }
 
 h4 {
@@ -17,12 +29,12 @@ a, u {
 
 /* unvisited link */
 a:link {
-  color: rgba(0, 0, 0, 0.87);
+    color: inherit;
 }
 
 /* visited link */
 a:visited {
-  color: rgba(0, 0, 0, 0.87);
+    color: inherit;
 }
 
 /* mouse over link */
@@ -32,23 +44,25 @@ a:visited {
 
 /* selected link */
 a:active {
-  color: rgba(0, 0, 0, 0.87);
+    color: inherit;
 }
 
-.nav-item{
+.navbar {
+    position: relative;
+    background-color: #394f8a;
+    color: white !important;
+}
+
+.nav-item {
     color: white !important;
     font-size: 18px;
     font-weight: bold;
 }
+
 .navbar-brand {
     color: white !important;
     font-size: 22px;
     font-weight: bold;
-}
-
-.navbar{
-    background-color: #394f8a;
-    color: white !important;
 }
 
 .form-wrapper {

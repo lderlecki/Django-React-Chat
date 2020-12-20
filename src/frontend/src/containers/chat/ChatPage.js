@@ -1,7 +1,9 @@
-import React, {useEffect} from 'react';
+import React, {Component, Fragment, useEffect} from 'react';
 import {connect} from 'react-redux';
 import {Container, makeStyles, CssBaseline, CircularProgress} from "@material-ui/core";
 import {load_rooms_in_workspace} from "../../actions/chat";
+import ChatSidebar from "./ChatSidebar";
+import Chat from "./Chat";
 
 const useStyles = makeStyles({
     wrapper: {
@@ -28,9 +30,6 @@ const useStyles = makeStyles({
     item: {
         display: "flex",
         flexDirection: "column",
-        // justifyContent: "left",
-        // alignItems: "center",
-        // backgroundColor: "red"
 
     },
     itemLink: {},
@@ -53,36 +52,30 @@ const useStyles = makeStyles({
     }
 })
 
-const WorkspaceDetail = ({match, load_rooms_in_workspace, chat}) => {
-    useEffect( () => {
-        if (!chat.roomsLoaded) {
-            load_rooms_in_workspace(match.params.workspace);
-        }
-    }, [chat.workspace])
-    const classes = useStyles();
-    const generateTemplate = (room) => (
-        <a className={classes.itemLink} href='#!'>
-            <div className={classes.itemBlock}>
-                <div className={classes.item}>
-                    <div style={{padding: "15px"}}>
-                        <div className="workspace-item-name">{room.name}</div>
-                        <div className="workspace-item-members">{room.users.length + 1} members</div>
-                    </div>
-                </div>
-            </div>
-        </a>
-    )
+class ChatPage extends Component {
 
-    return (
-        <Container align='center'>
-            <CssBaseline/>
-            {chat.roomsLoaded ?
-                chat.rooms.map((room) => (generateTemplate(room)))
-                :
-                <CircularProgress/>
-            }
-        </Container>
-    )
+    componentDidMount() {
+        const {
+            match,
+            load_rooms_in_workspace,
+            chat,
+        } = this.props
+        load_rooms_in_workspace(match.params.workspace)
+    }
+
+    render() {
+        const {
+            chat,
+        } = this.props
+        return (
+            <Fragment >
+                <div style={{display: 'flex', flexDirection:'row', height: '100%'}}>
+                    <ChatSidebar workspace={chat.workspace} rooms={chat.rooms} currentRoom={chat.currentRoom} />
+                    <Chat currentRoom={chat.currentRoom}/>
+                </div>
+            </Fragment>
+        )
+    }
 
 }
 
@@ -90,4 +83,4 @@ const mapStateToProps = state => ({
     chat: state.chat
 })
 
-export default connect(mapStateToProps, {load_rooms_in_workspace})(WorkspaceDetail);
+export default connect(mapStateToProps, {load_rooms_in_workspace})(ChatPage);
