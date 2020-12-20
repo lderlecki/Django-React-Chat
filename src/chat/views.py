@@ -1,3 +1,4 @@
+from django.db.models import Q, Prefetch
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -39,22 +40,45 @@ class WorkspaceCreateView(APIView):
 class WorkspaceListView(APIView):
     def get(self, request):
         # Check if request user is a member of a workspace with a given code
-        workspace = request.user.workspace_set.all()
-        if not workspace.exists():
+        workspaces = Workspace.objects.filter(
+            Q(host=request.user) |
+            Q(users=request.user)
+        ).distinct().order_by("-date_created")
+        if not workspaces.exists():
             return Response({'workspace': 'No workspaces available.'}, status=status.HTTP_200_OK)
-        return Response(WorkspaceSerializer(workspace, many=True).data, status=status.HTTP_200_OK)
+        return Response(WorkspaceSerializer(workspaces, many=True).data, status=status.HTTP_200_OK)
 
 
 class WorkspaceDetailView(APIView):
     def get(self, request, workspace_code):
-        workspace = request.user.workspace_set.get(code=workspace_code)
-        if not workspace:
-            return Response({'workspace': 'Such workspace does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+        workspace = Workspace.objects.filter(code=workspace_code).prefetch_related(
+            Prefetch('room_set', queryset=Room.objects.filter(
+                Q(is_private=False) |
+                Q(users=request.user) |
+                Q(host=request.user),
+                workspace__code=workspace_code,
+            ))
+        ).distinct()
 
-        ret_data = WorkspaceDetailSerializer(workspace).data
-        ret_data['is_owner'] = request.user == workspace.host
+        if not workspace.exists():
+            return Response(
+                {'room': 'There are no rooms you can enter in this workspace.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        ret_workspace = workspace[0]
+        data = WorkspaceDetailSerializer(ret_workspace).data
+        for room in data.get('rooms', []):
+            host = room.get('host')
+            room['is_owner'] = request.user.email == host.get('email') if host else False
 
-        return Response(WorkspaceDetailSerializer(workspace).data, status=status.HTTP_200_OK)
+        if data.get('rooms'):
+            data['current_room'] = data.get('rooms')[0]
+        else:
+            data['current_room'] = None
+
+        data['is_owner'] = ret_workspace.is_owner(request.user)
+
+        return Response(data, status=status.HTTP_200_OK)
 
 
 # class RoomView(APIView):

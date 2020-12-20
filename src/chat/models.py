@@ -36,13 +36,16 @@ class CommonInfo(models.Model):
     class Meta:
         abstract = True
 
+    def is_owner(self, user):
+        return self.host == user
+
 
 class Workspace(CommonInfo):
     """
         Workspace model, where user can create rooms.
         If the is_private field is True, the workspace can be only accessed by invitation from workspace host
     """
-    users = models.ManyToManyField('accounts.User', blank=True, related_name='workspace_members')
+    users = models.ManyToManyField('accounts.User', blank=True, related_name='workspaces')
     code = models.CharField(max_length=11, default=get_random_workspace_id, unique=True)
 
     def __str__(self):
@@ -50,7 +53,7 @@ class Workspace(CommonInfo):
 
 
 class Room(CommonInfo):
-    users = models.ManyToManyField('accounts.User', blank=True, related_name='room_members')
+    users = models.ManyToManyField('accounts.User', blank=True, related_name='rooms')
     workspace = models.ForeignKey('Workspace', on_delete=models.CASCADE)
     code = models.CharField(max_length=11, default=get_random_room_id, unique=True)
 

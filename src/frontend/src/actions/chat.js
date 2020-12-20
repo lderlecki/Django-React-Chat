@@ -7,7 +7,7 @@ import {
     ROOM_CREATE_SUCCESS,
     ROOM_CREATE_FAIL,
     ROOM_LOADED_SUCCESS,
-    ROOM_LOADED_FAIL,
+    ROOM_LOADED_FAIL, ROOMS_LOADING,
 } from './types'
 import {getCookie} from "./utils";
 
@@ -40,27 +40,67 @@ export const load_workspaces = () => async dispatch => {
     }
 };
 
-export const createWorkspace = (name, is_private, password) => async dispatch => {
-    // const csrftoken = getCookie('csrftoken')
+export const load_rooms_in_workspace = (code) => async dispatch => {
+    dispatch({
+        type: ROOMS_LOADING
+    })
     const config = {
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `JWT ${localStorage.getItem('access')}`,
-            // 'X-CSRFToken': csrftoken
+        }
+    }
+    try{
+        const response = await axios.get(`/api/workspace/${code}/`, config)
+        dispatch({
+            type: ROOM_LOADED_SUCCESS,
+            payload: response.data
+        })
+    } catch (err){
+        dispatch({
+            type: ROOM_LOADED_FAIL
+        })
+    }
+}
+
+export const createWorkspace = (name, is_private, password) => async dispatch => {
+    const config = {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `JWT ${localStorage.getItem('access')}`,
         }
     }
     const body = JSON.stringify({name, is_private, password});
     try {
         const response = await axios.post('/api/workspace/create/', body, config)
-        console.log(response.data)
         dispatch({
             type: WORKSPACE_CREATE_SUCCESS,
             payload: response.data
         })
-        // dispatch(load_workspaces())
     } catch (err) {
         dispatch({
             type: WORKSPACE_CREATE_FAIL,
+        })
+    }
+}
+
+export const createRoom = (name, is_private, password, workspaceCode) => async dispatch => {
+    const config = {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `JWT ${localStorage.getItem('access')}`,
+        }
+    }
+    const body = JSON.stringify({name, is_private, password});
+    try {
+        const response = await axios.post(`/api/workspace/${workspaceCode}/create/`, body, config)
+        dispatch({
+            type: ROOM_CREATE_SUCCESS,
+            payload: response.data
+        })
+    } catch (err) {
+        dispatch({
+            type: ROOM_CREATE_FAIL,
         })
     }
 }

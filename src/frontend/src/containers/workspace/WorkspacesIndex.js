@@ -54,8 +54,9 @@ const useStyles = makeStyles({
     }
 })
 
-const WorkspacesMain = ({load_workspaces, auth, chat}) => {
+const WorkspacesIndex = ({load_workspaces, auth, chat}) => {
     useEffect(() => {
+        console.log('load workspaces')
         load_workspaces();
     }, []);
 
@@ -66,7 +67,7 @@ const WorkspacesMain = ({load_workspaces, auth, chat}) => {
     const generateTemplate = (workspace) => (
         // TODO: API call to /workspace.code/ and then return workspace rooms and the room,
         //  that user should be directed to
-        <a className={classes.itemLink} href={`/${workspace.code}/321`}>
+        <Link className={classes.itemLink} to={`/${workspace.code}`}>
             <div className={classes.itemBlock}>
                 <div className={classes.item}>
                     <div style={{padding: "15px"}}>
@@ -75,26 +76,23 @@ const WorkspacesMain = ({load_workspaces, auth, chat}) => {
                     </div>
                 </div>
             </div>
-        </a>
+        </Link>
     )
-    const items = []
-    if (chat.workspaces) {
-        for (const [, workspace] of chat.workspaces.entries()) {
-            items.push(generateTemplate(workspace))
-        }
-    }
 
-    const ShowUserWorkspaces = (userData) => {
+    const ShowUserWorkspaces = (props) => {
         return (
             <div className={classes.wrapper}>
                 <section className={classes.list}>
                     <div className={classes.header}>
                         <h4>
-                            Workspaces for <strong>{userData.email}</strong>
+                            Workspaces for <strong>{props.user.email}</strong>
                         </h4>
                     </div>
-                    {items}
-
+                    {
+                        chat.workspaces.map((workspace) => (
+                            generateTemplate(workspace)
+                        ))
+                    }
                 </section>
                 <div className={classes.createWorkspace}>
                     <span>Want to chat with different team?</span>
@@ -103,14 +101,13 @@ const WorkspacesMain = ({load_workspaces, auth, chat}) => {
                     </Button>
                 </div>
             </div>
-
         );
     }
 
     return (
         <Container align='center'>
             <CssBaseline/>
-            {auth.user && chat.workspacesLoaded ? (<ShowUserWorkspaces userData={auth.user}/>) : showSpinner}
+            {chat.workspacesLoaded ? (<ShowUserWorkspaces user={auth.user} />) : showSpinner}
         </Container>
     )
 }
@@ -120,6 +117,6 @@ const mapStateToProps = state => ({
     chat: state.chat,
 })
 
-export default connect(mapStateToProps, {load_workspaces})(WorkspacesMain)
+export default connect(mapStateToProps, {load_workspaces})(WorkspacesIndex)
 
 

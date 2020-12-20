@@ -12,47 +12,49 @@ import {
     PASSWORD_RESET_FAIL,
     PASSWORD_RESET_CONFIRM_SUCCESS,
     PASSWORD_RESET_CONFIRM_FAIL,
-    LOGOUT, SIGNUP_SUCCESS, SIGNUP_FAIL, USER_IS_LOADING, USER_LOADING_FINISHED,
+    LOGOUT,
+    SIGNUP_SUCCESS,
+    SIGNUP_FAIL,
+    USER_IS_LOADING,
 } from './types';
-import {load_workspaces} from "./chat";
 
-export const checkAuthenticated = () => async dispatch => {
-    if (localStorage.getItem('access')) {
-        dispatch({
-            type: USER_IS_LOADING
-        })
-        const config = {
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            }
-        };
-
-        const body = JSON.stringify({token: localStorage.getItem('access')});
-        try {
-            const response = await axios.post('/auth/jwt/verify/', body, config)
-            if (response.status !== 401) {
-                dispatch({
-                    type: AUTHENTICATED_SUCCESS,
-                })
-            } else {
-                dispatch({
-                    type: AUTHENTICATED_FAIL
-                })
-            }
-
-        } catch (err) {
-            dispatch({
-                type: AUTHENTICATED_FAIL
-            })
-        }
-
-    } else {
-        dispatch({
-            type: AUTHENTICATED_FAIL
-        })
-    }
-}
+// export const checkAuthenticated = () => async dispatch => {
+//     if (localStorage.getItem('access')) {
+//         dispatch({
+//             type: USER_IS_LOADING
+//         })
+//         const config = {
+//             headers: {
+//                 'Content-Type': 'application/json',
+//                 'Accept': 'application/json',
+//             }
+//         };
+//
+//         const body = JSON.stringify({token: localStorage.getItem('access')});
+//         try {
+//             const response = await axios.post('/auth/jwt/verify/', body, config)
+//             if (response.status !== 401) {
+//                 dispatch({
+//                     type: AUTHENTICATED_SUCCESS,
+//                 })
+//             } else {
+//                 dispatch({
+//                     type: AUTHENTICATED_FAIL
+//                 })
+//             }
+//
+//         } catch (err) {
+//             dispatch({
+//                 type: AUTHENTICATED_FAIL
+//             })
+//         }
+//
+//     } else {
+//         dispatch({
+//             type: AUTHENTICATED_FAIL
+//         })
+//     }
+// }
 
 export const load_user = () => async dispatch => {
     dispatch({
@@ -68,15 +70,9 @@ export const load_user = () => async dispatch => {
         };
         try {
             const response = await axios.get('/auth/users/me/', config);
-            // dispatch({
-            //     type: AUTHENTICATED_SUCCESS
-            // })
             dispatch({
                 type: USER_LOADED_SUCCESS,
                 payload: response.data
-            })
-            dispatch({
-                type: USER_LOADING_FINISHED
             })
         } catch (err) {
             dispatch({

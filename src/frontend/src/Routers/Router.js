@@ -6,12 +6,14 @@ import Signup from "../containers/Signup";
 import ResetPassword from "../containers/ResetPassword";
 import ResetPasswordConfirm from "../containers/ResetPasswordConfirm";
 import Activate from "../containers/Activate";
-import WorkspacesMain from "../containers/workspace/WorkspacesMain";
+import WorkspacesIndex from "../containers/workspace/WorkspacesIndex";
 import WorkspaceCreate from "../containers/workspace/WorkspaceCreate";
-import Workspace from "../containers/workspace/Workspace";
+import WorkspaceDetail from "../containers/workspace/WorkspaceDetail";
+import RoomCreate from "../containers/workspace/RoomCreate";
 import Home from "../containers/Home";
 import React from "react";
 import PrivateRoute from "./PrivateRoute";
+import WorkspaceVerify from "../containers/workspace/WorkspaceVerify";
 
 
 const AppRouter = () => (
@@ -24,9 +26,12 @@ const AppRouter = () => (
                 <Route exact path='/password/reset/confirm/:uid/:token' component={ResetPasswordConfirm}/>
                 <Route exact path='/activate/:uid/:token' component={Activate}/>
 
-                <PrivateRoute exact path='/workspaces' component={WorkspacesMain}/>
+                <PrivateRoute exact path='/workspaces' component={WorkspacesIndex}/>
                 <PrivateRoute exact path='/workspaces/create' component={WorkspaceCreate}/>
-                <PrivateRoute exact path='/:workspace/:room' component={Workspace}/>
+
+                <PrivateRoute exact path='/:workspace' component={WorkspaceVerify}/>
+                <PrivateRoute exact path='/:workspace/create' component={RoomCreate}/>
+                <PrivateRoute exact path='/:workspace/:room' component={WorkspaceDetail}/>
 
                 <Route exact path='/*' component={Home}/>
             </Switch>

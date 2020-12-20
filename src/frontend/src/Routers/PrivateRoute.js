@@ -3,28 +3,13 @@ import {connect} from 'react-redux'
 import {Route, Redirect} from "react-router-dom";
 import {CircularProgress} from "@material-ui/core";
 
-// const PrivateRoute = ({isAuthenticated, component: Component, ...rest }) => {
-//     useEffect(() => {
-//         if (isAuthenticated === true){
-//             return <Route {...rest} component={Component}/>
-//         }
-//         if (isAuthenticated === false) {
-//             return <Redirect to={'/login'}/>
-//         }
-//     }, [isAuthenticated]);
-//     const showSpinner = (
-//         <CircularProgress/>
-//     )
-//     return showSpinner
-// }
-
 const PrivateRoute = ({component: Component, auth, ...rest}) => (
     <Route
         {...rest}
         render={props => {
-            // check auth.isAuthenticated === null because this route receives first the initial state, where isAuthenticated is null
+            // check auth.isAuthenticated === null to prevent it will work even if the auth state is in it's initial state
             if (auth.isLoading || auth.isAuthenticated === null) {
-                return <CircularProgress />
+                return <CircularProgress/>
             } else if (auth.isAuthenticated === false) {
                 return <Redirect to={'/login'}/>
             } else {

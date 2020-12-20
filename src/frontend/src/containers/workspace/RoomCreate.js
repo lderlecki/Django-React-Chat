@@ -13,9 +13,9 @@ import {
     FormControlLabel, Tooltip
 } from "@material-ui/core";
 import {WORKSPACE_PRIVATE_TOOLTIP} from "./tooltips";
-import {createWorkspace} from "../../actions/chat";
+import {createRoom} from "../../actions/chat";
 
-const RoomCreate = ({ createWorkspace, workspace, room, errorMsg }) => {
+const RoomCreate = ({createRoom, workspace, room, errorMsg }) => {
     const [roomCreated, setRoomCreated] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
@@ -30,7 +30,7 @@ const RoomCreate = ({ createWorkspace, workspace, room, errorMsg }) => {
 
     const onSubmit = e => {
         e.preventDefault();
-        createWorkspace(name, is_private, password);
+        createRoom(name, is_private, password, workspace);
         setRoomCreated(true);
     };
 
@@ -45,10 +45,10 @@ const RoomCreate = ({ createWorkspace, workspace, room, errorMsg }) => {
             <CssBaseline/>
             <div className='form-wrapper'>
                 <Typography component='h1' variant='h1'>
-                    Workspace
+                    Room
                 </Typography>
                 <Typography component='subtitle1' variant='subtitle1'>
-                    Create your Workspace
+                    Create room and invite your friends to have fun together!
                 </Typography>
                 <form className='form' onSubmit={e => onSubmit(e)}>
                     <FormControl component="fieldset">
@@ -96,7 +96,7 @@ const RoomCreate = ({ createWorkspace, workspace, room, errorMsg }) => {
                             />
                         </Tooltip>
                     </FormControl>
-                    <Button color="primary" variant="contained" type='submit'>Create Workspace</Button>
+                    <Button color="primary" variant="contained" type='submit'>Create Room</Button>
                 </form>
             </div>
         </Container>
@@ -110,4 +110,4 @@ const mapStateToProps = state => ({
 
 })
 
-export default connect(mapStateToProps, {createWorkspace})(RoomCreate);
+export default connect(mapStateToProps, {createRoom})(RoomCreate);
