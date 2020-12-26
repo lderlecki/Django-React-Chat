@@ -28,10 +28,8 @@ const ChatMessageInput = ({messages, send_message}) => {
 
     const handleKeyPress = (event) => {
         if (event.key === 'Enter' && messageData.message) {
-            console.log(messages)
             messages.push({message: messageData})
             setMessageData({message: ''})
-            console.log(messages)
         }
     };
 

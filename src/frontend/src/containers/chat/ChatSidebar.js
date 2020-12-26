@@ -11,6 +11,7 @@ import {
     TextField,
     Typography,
 } from "@material-ui/core";
+import {Link} from "react-router-dom";
 
 
 const styles = makeStyles((theme) => ({
@@ -28,7 +29,7 @@ const styles = makeStyles((theme) => ({
 
 }))
 
-const ChatSidebar = ({workspace, currentRoom, rooms}) => {
+const ChatSidebar = ({workspace, rooms, currentRoom, fetchRoom}) => {
     const classes = styles()
 
     return (
@@ -52,7 +53,7 @@ const ChatSidebar = ({workspace, currentRoom, rooms}) => {
             <List>
                 {rooms && rooms.length ? (
                     rooms.map(room => (
-                        <ListItem button>
+                        <ListItem button component={Link} to={`${room.code}`}>
                             <ListItemText primary={room.name} secondary={room.code}/>
                         </ListItem>
                     ))

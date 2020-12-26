@@ -19,30 +19,21 @@ const styles = makeStyles((theme) => ({
 
 }))
 
+const Chat = ({currentRoom}) => {
 
-const generateMessagesForTesting = (count) => {
-    let messages = []
-    for (let i = 0; i < count; i++) {
-        messages.push({message: `Message ${i + 1}`})
-    }
-    return messages
-}
-const messages = generateMessagesForTesting(30);
-
-const Chat = ({messages, currentRoom}) => {
     const classes = styles()
     return (
         <div className={classes.chatLayout}>
-            {/*<div>*/}
-                <ChatMessageList
-                    messages={messages}
-                    // activeUser={activeUser}
-                />
-            {/*</div>*/}
+
+            <ChatMessageList
+                messages={currentRoom.messages}
+                currentRoom={currentRoom}
+                // activeUser={activeUser}
+            />
 
             {currentRoom && (
                 <ChatMessageInput
-                    messages={messages}
+                    messages={currentRoom.messages}
                     // disabled={!isConnected}
                     // sendMessage={sendMessage}
                     // eslint-disable-next-line
@@ -55,8 +46,4 @@ const Chat = ({messages, currentRoom}) => {
 
 }
 
-const mapStateToProps = state => ({
-    messages: messages
-})
-
-export default connect(mapStateToProps)(Chat)
+export default Chat

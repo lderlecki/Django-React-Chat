@@ -1,7 +1,7 @@
 import React, {Component, Fragment, useEffect} from 'react';
 import {connect} from 'react-redux';
 import {Container, makeStyles, CssBaseline, CircularProgress} from "@material-ui/core";
-import {load_rooms_in_workspace} from "../../actions/chat";
+import {fetchRoom, load_rooms_in_workspace} from "../../actions/chat";
 import ChatSidebar from "./ChatSidebar";
 import Chat from "./Chat";
 
@@ -57,30 +57,61 @@ class ChatPage extends Component {
     componentDidMount() {
         const {
             match,
-            load_rooms_in_workspace,
             chat,
+            load_rooms_in_workspace,
+            fetchRoom,
         } = this.props
-        load_rooms_in_workspace(match.params.workspace)
+        const params = match.params
+        if (!chat.roomsLoaded) {
+            load_rooms_in_workspace(params.workspace).then(() => {
+                fetchRoom(params.workspace, params.room)
+            })
+        }
     }
+
+    componentWillReceiveProps(nextProps) {
+        // Old params
+        const {match: {params}, fetchRoom} = this.props
+        // New params
+        const {params: nextParams} = nextProps.match;
+
+        if (nextParams.room && params.room !== nextParams.room) {
+            fetchRoom(nextParams.workspace, nextParams.room)
+        }
+    }
+
 
     render() {
         const {
             chat,
+            fetchRoom,
         } = this.props
-        return (
-            <Fragment >
-                <div style={{display: 'flex', flexDirection:'row', height: '100%'}}>
-                    <ChatSidebar workspace={chat.workspace} rooms={chat.rooms} currentRoom={chat.currentRoom} />
-                    <Chat currentRoom={chat.currentRoom}/>
-                </div>
-            </Fragment>
-        )
+        if (chat.roomsLoaded && chat.roomFetched) {
+            return (
+                <Fragment>
+                    <div style={{display: 'flex', flexDirection: 'row', height: '100%'}}>
+                        <ChatSidebar
+                            workspace={chat.workspace}
+                            rooms={chat.rooms}
+                            currentRoom={chat.currentRoom}
+                            fetchRoom={fetchRoom}
+                        />
+                        <Chat currentRoom={chat.currentRoom}/>
+                    </div>
+                </Fragment>
+            )
+        } else {
+            return <CircularProgress/>
+        }
+
     }
 
 }
 
 const mapStateToProps = state => ({
-    chat: state.chat
-})
+        chat: state.chat
+    }
 
-export default connect(mapStateToProps, {load_rooms_in_workspace})(ChatPage);
+)
+
+export default connect(mapStateToProps, {load_rooms_in_workspace, fetchRoom,})(ChatPage);

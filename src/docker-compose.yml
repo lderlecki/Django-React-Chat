@@ -1,5 +1,7 @@
 version: '3'
 services:
+  redis:
+    image: redis:6.0.9-alpine
   db:
     image: postgres
     volumes:
@@ -27,6 +29,7 @@ services:
     - ./frontend:/app
     depends_on:
       - django
+
 volumes:
   db-data:
 #    driver: local

@@ -9,7 +9,7 @@ from .serializers import (
     WorkspaceSerializer,
     RoomCreateSerializer,
     RoomSerializer,
-    WorkspaceDetailSerializer
+    WorkspaceDetailSerializer, MessageSerializer, RoomDetailSerializer
 )
 
 
@@ -53,7 +53,7 @@ class WorkspaceDetailView(APIView):
     def get(self, request, workspace_code):
         workspace = Workspace.objects.filter(code=workspace_code).prefetch_related(
             Prefetch('room_set', queryset=Room.objects.filter(
-                Q(is_private=False) |
+                Q(is_private=False) & Q(password=None) |
                 Q(users=request.user) |
                 Q(host=request.user),
                 workspace__code=workspace_code,
@@ -65,26 +65,39 @@ class WorkspaceDetailView(APIView):
                 {'room': 'There are no rooms you can enter in this workspace.'},
                 status=status.HTTP_404_NOT_FOUND
             )
+
         ret_workspace = workspace[0]
         data = WorkspaceDetailSerializer(ret_workspace).data
         for room in data.get('rooms', []):
             host = room.get('host')
             room['is_owner'] = request.user.email == host.get('email') if host else False
 
-        if data.get('rooms'):
-            data['current_room'] = data.get('rooms')[0]
-        else:
-            data['current_room'] = None
+        # if rooms := data.get('rooms'):
+        #     current_room = rooms[0]
+        #     current_room_obj = Room.objects.get(code=current_room.get('code'))
+        #     data['current_room'] = RoomDetailSerializer(current_room_obj).data
+        # else:
+        #     data['current_room'] = None
 
         data['is_owner'] = ret_workspace.is_owner(request.user)
 
         return Response(data, status=status.HTTP_200_OK)
 
 
-# class RoomView(APIView):
-#     def get(self, request, workspace_code, room_code):
-#         workspace = request.user.workspace_set.filter(code=workspace_code)
-#         # rooms = workspace.
+class RoomDetailView(APIView):
+    def get(self, request, workspace_code, room_code):
+        room = Room.objects.filter(code=room_code, workspace__code=workspace_code)
+        if room.exists():
+            room = room[0]
+            if room.has_room_access(request.user):
+                data = RoomDetailSerializer(room).data
+                data['is_owner'] = room.is_owner(request.user)
+                return Response(data, status=status.HTTP_200_OK)
+
+        return Response(
+            {'error': 'You do not have access to this room or such room does not exist'},
+            status=status.HTTP_403_FORBIDDEN
+        )
 
 
 class RoomCreateView(APIView):

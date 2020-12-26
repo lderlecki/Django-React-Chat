@@ -2,7 +2,7 @@ from django.db.models import Q
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 
-from .models import Workspace, Room
+from .models import Workspace, Room, Message
 
 User = get_user_model()
 
@@ -35,6 +35,24 @@ class RoomSerializer(serializers.ModelSerializer):
         fields = ('name', 'host', 'is_private', 'users', 'code')
 
 
+class MessageSerializer(serializers.ModelSerializer):
+    author = RoomMemberSerializer()
+
+    class Meta:
+        model = Message
+        fields = ('content', 'timestamp', 'author')
+
+
+class RoomDetailSerializer(serializers.ModelSerializer):
+    messages = MessageSerializer(required=False, many=True)
+    users = RoomMemberSerializer(required=False, many=True)
+    host = RoomMemberSerializer()
+
+    class Meta:
+        model = Room
+        fields = ('name', 'host', 'is_private', 'users', 'code', 'messages')
+
+
 class RoomCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Room
@@ -48,3 +66,5 @@ class WorkspaceDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Workspace
         fields = ('name', 'host', 'is_private', 'rooms', 'code')
+
+

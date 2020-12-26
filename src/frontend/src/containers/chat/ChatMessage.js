@@ -4,7 +4,7 @@ import {makeStyles, Typography} from "@material-ui/core";
 const styles = makeStyles((theme) => ({
     messageWrapper: {
         display: 'flex',
-        justifyContent: 'flex-start',
+        justifyContent: 'space-between',
         alignItems: 'center',
         padding: `${theme.spacing.unit}px ${theme.spacing.unit * 3}px`,
     },
@@ -31,26 +31,21 @@ const styles = makeStyles((theme) => ({
 }));
 
 
-const ChatMessage = ({message, currentRoom}) => {
+const ChatMessage = ({author, content, timestamp}) => {
     const classes = styles()
-
     return (
         <div className={classes.messageWrapper}>
-            <Typography className={classes.statusMessage}>
-                <Typography
-                    variant="caption"
-                    style={{color: 'gray'}}
-                    className={classes.statusMessageUser}
-                >
-                    {/*{displayedName}*/}
-                    sender name
-                </Typography>
-                {/*{content}*/}
-                   {message}
-                <Typography variant="caption" component="span">
-                    {/*{moment(createdAt).fromNow()}*/}
-                    Date created
-                </Typography>
+            <Typography
+                variant="caption"
+                style={{color: 'gray'}}
+                className={classes.statusMessageUser}
+            >
+                {author.name}
+            </Typography>
+            {/*{content}*/}
+            {content}
+            <Typography variant="caption" component="span">
+                {timestamp}
             </Typography>
         </div>
     );

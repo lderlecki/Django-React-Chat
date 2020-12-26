@@ -1,6 +1,7 @@
 import React, {useEffect} from "react";
 import {makeStyles, Typography} from "@material-ui/core";
 import ChatMessage from "./ChatMessage";
+import {Redirect} from "react-router-dom";
 
 const styles = makeStyles((theme) => ({
     messagesWrapper: {
@@ -22,9 +23,8 @@ const styles = makeStyles((theme) => ({
 }))
 
 
-const ChatMessageList = ({messages, currentRoom}) => {
+const ChatMessageList = ({match, currentRoom, messages}) => {
    useEffect(() => {
-       console.log('chatlistmessage')
        updateScroll()
    })
 
@@ -35,8 +35,10 @@ const ChatMessageList = ({messages, currentRoom}) => {
         element.scrollTop = element.scrollHeight
     }
 
-    console.log(messages)
-    console.log(messages && messages.length)
+    if (!currentRoom) {
+        return <div>NO ROOM</div>
+    }
+
     return messages && messages.length ? (
         <div id='message-container' className={classes.messagesWrapper}>
             {messages.map(message => (
@@ -44,7 +46,9 @@ const ChatMessageList = ({messages, currentRoom}) => {
             ))}
         </div>
     ) : (
-        <Typography variant="display1">There is no messages yet...</Typography>
+        <div id='message-container' className={classes.messagesWrapper}>
+            <Typography variant="display1">There is no messages yet...</Typography>
+        </div>
     );
 
 

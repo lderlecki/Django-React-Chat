@@ -60,6 +60,16 @@ class Room(CommonInfo):
     def __str__(self):
         return f'{self.workspace} {self.name}'
 
-    def user_has_room_access(self, user):
+    def has_room_access(self, user):
         return (not self.is_private and self.password == "") or self.users.filter(email=user.email) or self.host == user
+
+    def last_n_messages(self, n=10):
+        return self.messages.all()[:n]
+
+
+class Message(models.Model):
+    content = models.TextField(blank=False, null=False)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='messages')
+    timestamp = models.DateTimeField(auto_now_add=True)
 

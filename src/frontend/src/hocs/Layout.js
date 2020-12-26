@@ -10,7 +10,6 @@ const Layout = (props) => {
             try {
                 await props.load_user();
             } catch (err) {
-                console.log('layout error: ', err)
                 return (<Redirect to='/login'/>)
             }
         }

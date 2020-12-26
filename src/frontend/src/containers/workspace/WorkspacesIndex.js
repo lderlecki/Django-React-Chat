@@ -56,7 +56,6 @@ const useStyles = makeStyles({
 
 const WorkspacesIndex = ({load_workspaces, auth, chat}) => {
     useEffect(() => {
-        console.log('load workspaces')
         load_workspaces();
     }, []);
 
