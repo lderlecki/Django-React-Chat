@@ -19,7 +19,7 @@ const styles = makeStyles((theme) => ({
 
 }))
 
-const Chat = ({currentRoom}) => {
+const Chat = ({user, currentRoom}) => {
 
     const classes = styles()
     return (
@@ -33,7 +33,8 @@ const Chat = ({currentRoom}) => {
 
             {currentRoom && (
                 <ChatMessageInput
-                    messages={currentRoom.messages}
+                    user={user}
+                    currentRoom={currentRoom}
                     // disabled={!isConnected}
                     // sendMessage={sendMessage}
                     // eslint-disable-next-line

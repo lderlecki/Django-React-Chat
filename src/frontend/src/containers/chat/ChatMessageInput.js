@@ -1,5 +1,6 @@
 import React, {useState} from "react";
 import {Input, makeStyles, Paper} from "@material-ui/core";
+import WebSocketInstance from "../../components/Websocket";
 
 const styles = makeStyles((theme) => ({
     messageInputWrapper: {
@@ -18,7 +19,7 @@ const styles = makeStyles((theme) => ({
 }))
 
 
-const ChatMessageInput = ({messages, send_message}) => {
+const ChatMessageInput = ({currentRoom, user,}) => {
     const [messageData, setMessageData] = useState({
         message: '',
     })
@@ -27,11 +28,24 @@ const ChatMessageInput = ({messages, send_message}) => {
     const onChange = e => setMessageData({...messageData, [e.target.name]: e.target.value})
 
     const handleKeyPress = (event) => {
+        // event.preventDefault();
         if (event.key === 'Enter' && messageData.message) {
-            messages.push({message: messageData})
+            // TODO: trim message and do other stuff so that the message does not have for e.g. unnecessary spaces
+            sendMessageHandler(messageData.message)
             setMessageData({message: ''})
         }
     };
+
+
+    const sendMessageHandler = (message) => {
+        const msgObj = {
+            author: user.email,
+            content: message,
+            room_code: currentRoom.code
+        }
+        WebSocketInstance.newChatMessage(msgObj);
+
+    }
 
     return (
         <div className={classes.messageInputWrapper}>

@@ -3,9 +3,11 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 
 import chat.routing
 
+from .middleware import TokenAuthMiddlewareStack
+
 application = ProtocolTypeRouter({
 
-    'websocket': AuthMiddlewareStack(
+    'websocket': TokenAuthMiddlewareStack(
             URLRouter(chat.routing.websocket_urlpatterns)
         ),
 })

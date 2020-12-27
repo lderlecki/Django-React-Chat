@@ -32,6 +32,15 @@ const styles = makeStyles((theme) => ({
 
 
 const ChatMessage = ({author, content, timestamp}) => {
+    const getDisplayDate = (timestamp) => {
+        const dateObj = new Date(timestamp);
+        const month = dateObj.getUTCMonth() + 1; //months from 1-12
+        const day = dateObj.getUTCDate();
+        const year = dateObj.getUTCFullYear();
+
+        return year + "/" + month + "/" + day;
+    }
+
     const classes = styles()
     return (
         <div className={classes.messageWrapper}>
@@ -42,10 +51,9 @@ const ChatMessage = ({author, content, timestamp}) => {
             >
                 {author.name}
             </Typography>
-            {/*{content}*/}
             {content}
             <Typography variant="caption" component="span">
-                {timestamp}
+                {getDisplayDate(timestamp)}
             </Typography>
         </div>
     );

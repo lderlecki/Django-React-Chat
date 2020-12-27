@@ -7,7 +7,7 @@ import {
     ROOMS_LOADED_SUCCESS,
     ROOMS_LOADED_FAIL, LOGOUT, ROOM_CREATE_SUCCESS, ROOM_CREATE_FAIL,
     CHANGING_ROOM,
-    FETCH_ROOM_REQUEST, ROOM_FETCH_SUCCESS, ROOM_FETCH_FAILED,
+    FETCH_ROOM_REQUEST, ROOM_FETCH_SUCCESS, ROOM_FETCH_FAILED, MESSAGE_RECEIVED,
 } from "../actions/types";
 
 const initialState = {
@@ -20,8 +20,10 @@ const initialState = {
     roomFetched: false,
     currentRoom: null,
     rooms: [], // rooms available in current workspace, that user has access to
-
     isWorkspaceOwner: null,
+    socket: {
+        isFetching: false
+    },
 }
 
 export default function (state = initialState, action) {
@@ -127,6 +129,15 @@ export default function (state = initialState, action) {
         case LOGOUT:
             return {
                 ...initialState
+            }
+
+        case MESSAGE_RECEIVED:
+            return {
+                ...state,
+                currentRoom: {
+
+                    messages: [...state.currentRoom.messages, payload]
+                },
             }
 
         default:

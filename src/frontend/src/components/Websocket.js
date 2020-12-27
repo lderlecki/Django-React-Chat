@@ -1,4 +1,4 @@
-import {SOCKET_URL} from "./settings";
+import {SOCKET_URL} from "../settings";
 
 class WebSocketService {
     static instance = null;
@@ -17,13 +17,14 @@ class WebSocketService {
 
     connect(workspaceCode, roomCode) {
         // dispatch connecting to websocket
-        const path = `${SOCKET_URL}/ws/workspace/${workspaceCode}/${roomCode}/`;
+        const path = `${SOCKET_URL}/ws/workspace/${workspaceCode}/${roomCode}/?token=${localStorage.getItem('access')}`;
         this.socketRef = new WebSocket(path);
         this.socketRef.onopen = () => {
             console.log("WebSocket open");
             // dispatch connecting to websocket
         };
         this.socketRef.onmessage = e => {
+            console.log('message received')
             this.socketNewMessage(e.data);
         };
         this.socketRef.onerror = e => {
@@ -33,7 +34,7 @@ class WebSocketService {
         this.socketRef.onclose = () => {
             // dispatch websocket closed
             console.log("WebSocket closed let's reopen");
-            this.connect();
+            // this.connect();
         };
     }
 
@@ -42,48 +43,37 @@ class WebSocketService {
     }
 
     socketNewMessage(data) {
+        console.log('socket new messages')
         const parsedData = JSON.parse(data);
         const command = parsedData.command;
-        if (Object.keys(this.callbacks).length === 0) {
-            return;
-        }
         if (command === "messages") {
+            console.log('messages')
             this.callbacks[command](parsedData.messages);
-        }
-        if (command === "new_message") {
+        } else if (command === "new_message") {
+            console.log('new_message')
             this.callbacks[command](parsedData.message);
         }
-    }
-
-    fetchMessages(username, room_code) {
-        this.sendMessage({
-            command: "fetch_messages",
-            username: username,
-            room_code: room_code
-        });
     }
 
     newChatMessage(message) {
         this.sendMessage({
             command: "new_message",
-            from: message.from,
+            author: message.author,
             message: message.content,
-            room_code: message.room_code
+            room_code: message.room_code,
         });
-    }
-
-    addCallbacks(messagesCallback, newMessageCallback) {
-        this.callbacks["messages"] = messagesCallback;
-        this.callbacks["new_message"] = newMessageCallback;
     }
 
     sendMessage(data) {
         // dispatch message sending
+        console.log('sending message')
         try {
             this.socketRef.send(JSON.stringify({...data}));
+            console.log('msg sent success')
             // dispatch message sent success
         } catch (err) {
             console.log(err.message);
+            console.log('msg not sent')
             // dispatch message sent failed
         }
     }
@@ -91,6 +81,11 @@ class WebSocketService {
     state() {
         return this.socketRef.readyState;
     }
+
+    addCallbacks(newMessageCallback) {
+        this.callbacks["new_message"] = newMessageCallback;
+    }
+
 }
 
 const WebSocketInstance = WebSocketService.getInstance();

@@ -1,13 +1,15 @@
 version: '3'
 services:
   redis:
-    image: redis:6.0.9-alpine
+    image: redis:alpine
+    ports:
+      - "6380:6379"
   db:
     image: postgres
     volumes:
       - db-data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "54321:5432"
     environment:
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USER}

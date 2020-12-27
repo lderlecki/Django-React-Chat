@@ -9,7 +9,7 @@ import {
     ROOMS_LOADED_SUCCESS,
     ROOMS_LOADED_FAIL, ROOMS_LOADING,
     CHANGING_ROOM,
-    FETCH_ROOM_REQUEST, ROOM_FETCH_FAILED, ROOM_FETCH_SUCCESS,
+    FETCH_ROOM_REQUEST, ROOM_FETCH_FAILED, ROOM_FETCH_SUCCESS, MESSAGE_RECEIVED,
 } from './types'
 import {getCookie} from "./utils";
 
@@ -115,3 +115,13 @@ export const createRoom = (name, is_private, password, workspaceCode) => async d
         })
     }
 }
+
+// Message actions
+
+export const addMessage = (message) => async dispatch => {
+    dispatch({
+        type: MESSAGE_RECEIVED,
+        payload: message
+    })
+}
+

@@ -1,9 +1,10 @@
 import React, {Component, Fragment, useEffect} from 'react';
 import {connect} from 'react-redux';
 import {Container, makeStyles, CssBaseline, CircularProgress} from "@material-ui/core";
-import {fetchRoom, load_rooms_in_workspace} from "../../actions/chat";
+import {addMessage, fetchRoom, load_rooms_in_workspace} from "../../actions/chat";
 import ChatSidebar from "./ChatSidebar";
 import Chat from "./Chat";
+import WebSocketInstance from "../../components/Websocket";
 
 const useStyles = makeStyles({
     wrapper: {
@@ -54,6 +55,39 @@ const useStyles = makeStyles({
 
 class ChatPage extends Component {
 
+    initChat() {
+        const {
+            match,
+            addMessage
+        } = this.props
+        const params = match.params
+        WebSocketInstance.addCallbacks(addMessage.bind(this))
+        this.waitForSocketConnection();
+        WebSocketInstance.connect(params.workspace, params.room)
+    }
+
+    constructor(props) {
+        super(props);
+        this.initChat();
+    }
+
+    waitForSocketConnection(callback) {
+        const component = this;
+        setTimeout(
+            function () {
+                // Check if websocket is OPEN
+                if (WebSocketInstance.state() === 1) {
+                    console.log("Connected")
+                    if (callback)
+                        callback();
+                    return;
+                } else {
+                    console.log("Connecting")
+                    component.waitForSocketConnection(callback);
+                }
+            }, 100); // wait 100 milliseconds for the connection...
+    }
+
     componentDidMount() {
         const {
             match,
@@ -77,12 +111,15 @@ class ChatPage extends Component {
 
         if (nextParams.room && params.room !== nextParams.room) {
             fetchRoom(nextParams.workspace, nextParams.room)
+            WebSocketInstance.disconnect();
+            this.waitForSocketConnection()
+            WebSocketInstance.connect(nextParams.workspace, nextParams.room)
         }
     }
 
-
     render() {
         const {
+            user,
             chat,
             fetchRoom,
         } = this.props
@@ -96,7 +133,7 @@ class ChatPage extends Component {
                             currentRoom={chat.currentRoom}
                             fetchRoom={fetchRoom}
                         />
-                        <Chat currentRoom={chat.currentRoom}/>
+                        <Chat user={user} currentRoom={chat.currentRoom}/>
                     </div>
                 </Fragment>
             )
@@ -109,9 +146,16 @@ class ChatPage extends Component {
 }
 
 const mapStateToProps = state => ({
+        user: state.auth.user,
         chat: state.chat
+    })
+
+const mapDispatchToProps = dispatch => {
+    return {
+        addMessage: message => dispatch(addMessage(message)),
+        load_rooms_in_workspace: workspaceCode => dispatch(load_rooms_in_workspace(workspaceCode)),
+        fetchRoom: (workspaceCode, roomCode) => dispatch(fetchRoom(workspaceCode, roomCode)),
     }
+}
 
-)
-
-export default connect(mapStateToProps, {load_rooms_in_workspace, fetchRoom,})(ChatPage);
+export default connect(mapStateToProps, mapDispatchToProps)(ChatPage);
