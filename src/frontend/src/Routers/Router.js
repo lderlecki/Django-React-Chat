@@ -15,9 +15,10 @@ import React from "react";
 import PrivateRoute from "./PrivateRoute";
 import WorkspaceVerify from "../containers/workspace/WorkspaceVerify";
 
+import history from "./history";
 
 const AppRouter = () => (
-    <Router>
+    <Router history={history}>
         <Layout>
             <Switch>
                 <Route exact path='/login' component={Login}/>

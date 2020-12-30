@@ -6,6 +6,7 @@ from .views import (
     WorkspaceListView,
     WorkspaceDetailView,
     RoomDetailView,
+    RoomWithPasswordView,
 )
 
 urlpatterns = [
@@ -16,5 +17,6 @@ urlpatterns = [
     # GET
     path('list/', WorkspaceListView.as_view()),
     path('<str:workspace_code>/', WorkspaceDetailView.as_view()),
+    path('room/<str:room_code>/verify/', RoomWithPasswordView.as_view()),
     path('<str:workspace_code>/<str:room_code>/', RoomDetailView.as_view()),
 ]

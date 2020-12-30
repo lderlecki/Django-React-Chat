@@ -24,7 +24,7 @@ const Chat = ({user, currentRoom}) => {
     const classes = styles()
     return (
         <div className={classes.chatLayout}>
-
+            {/*TODO: add spinner here or display nothing while changing room*/}
             <ChatMessageList
                 messages={currentRoom.messages}
                 currentRoom={currentRoom}

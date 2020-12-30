@@ -1,5 +1,6 @@
 from django.db.models import Q, Prefetch
 from rest_framework import status
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -53,7 +54,8 @@ class WorkspaceDetailView(APIView):
     def get(self, request, workspace_code):
         workspace = Workspace.objects.filter(code=workspace_code).prefetch_related(
             Prefetch('room_set', queryset=Room.objects.filter(
-                Q(is_private=False) & Q(password=None) |
+                # Q(is_private=False) & Q(password=None) |
+                Q(is_private=False) |
                 Q(users=request.user) |
                 Q(host=request.user),
                 workspace__code=workspace_code,
@@ -89,8 +91,10 @@ class RoomDetailView(APIView):
         room = Room.objects.filter(code=room_code, workspace__code=workspace_code)
         if room.exists():
             room = room[0]
-            if room.has_room_access(request.user):
+            if room.user_has_access(request.user):
                 data = RoomDetailSerializer(room).data
+
+                data['messages'] = MessageSerializer(room.last_n_messages(n=30), many=True).data
                 data['is_owner'] = room.is_owner(request.user)
                 return Response(data, status=status.HTTP_200_OK)
 
@@ -110,8 +114,12 @@ class RoomCreateView(APIView):
             new_name = name
             workspace = request.user.workspace_set.filter(code=workspace_code)
 
+            # Verify that the user is a member of the workspace where they want to create the room
             if not workspace:
-                return Response({'workspace': 'Room must belong to a workspace.'}, status=status.HTTP_404_NOT_FOUND)
+                return Response(
+                    {'workspace': 'You cannot create a room for that workspace.'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
             room_workspace = workspace[0]
             rooms = Room.objects.filter(workspace=room_workspace, name=name)
             c = 0
@@ -126,3 +134,45 @@ class RoomCreateView(APIView):
             return Response(RoomSerializer(room).data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class RoomWithPasswordView(APIView):
+    """API View for verifying if a user has access to the password-protected room with given code"""
+
+    def get(self, request, room_code):
+        """
+            Check if user has access to a given room, if not return 403 response.
+        """
+        room = Room.objects.filter(code=room_code)
+        if not room.exists():
+            return Response({'room': 'Room with given code does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+        room_obj = room[0]
+
+        if room_obj.user_has_access(request.user):
+            return Response({'room': 'User is already a member of this room.'}, status=status.HTTP_200_OK)
+
+        return Response({'room': 'The user has no access to this room.'}, status=status.HTTP_403_FORBIDDEN)
+
+    def post(self, request, room_code):
+        """
+            Check if password provided by user is correct
+        """
+        room = Room.objects.filter(code=room_code)
+        if not room.exists():
+            return Response({'room': 'Room with given code does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+        room_obj = room[0]
+        if room_obj.is_private:
+            # Private rooms can be only accessed by invitation from the room owner
+            return Response({'room': 'You are not allowed to join this room.'}, status=status.HTTP_403_FORBIDDEN)
+
+        if room_obj.user_has_access(request.user):
+            return Response({'room': 'User already has access to this room.'}, status=status.HTTP_200_OK)
+
+        room_password = request.data.get('password')
+        if room_obj.password != room_password:
+            raise ValidationError({'room': 'Password is incorrect'})
+        room_obj.users.add(request.user)
+
+        return Response({'room': 'The user has joined the room successfully.'}, status=status.HTTP_200_OK)

@@ -5,22 +5,35 @@ import {
     WORKSPACE_CREATE_FAIL,
     ROOMS_LOADING,
     ROOMS_LOADED_SUCCESS,
-    ROOMS_LOADED_FAIL, LOGOUT, ROOM_CREATE_SUCCESS, ROOM_CREATE_FAIL,
+    ROOMS_LOADED_FAIL,
+    LOGOUT,
+    ROOM_CREATE_SUCCESS,
+    ROOM_CREATE_FAIL,
     CHANGING_ROOM,
-    FETCH_ROOM_REQUEST, ROOM_FETCH_SUCCESS, ROOM_FETCH_FAILED, MESSAGE_RECEIVED,
+    FETCH_ROOM_REQUEST,
+    ROOM_FETCH_SUCCESS,
+    ROOM_FETCH_FAILED,
+    MESSAGE_RECEIVED,
+    ROOM_CHANGE_REQUEST,
+    ROOM_ACCESS_GRANTED, ROOM_ACCESS_DENIED, ROOM_PASSWORD_INCORRECT, ROOM_CHECK_PASSWORD, ROOM_PASSWORD_CORRECT,
 } from "../actions/types";
 
 const initialState = {
     workspacesLoaded: false,
     workspace: null,
     workspaces: [],
+    isWorkspaceOwner: null,
     // users: null,  // don't need workspace members for now
 
     roomsLoaded: false,
     roomFetched: false,
+    changingRoom: false,
+
     currentRoom: null,
+    hasRoomAccess: false,
     rooms: [], // rooms available in current workspace, that user has access to
-    isWorkspaceOwner: null,
+    roomPasswordCorrect: false,
+
     socket: {
         isFetching: false
     },
@@ -98,6 +111,7 @@ export default function (state = initialState, action) {
                 ...state,
                 workspace: payload.code,
                 roomsLoaded: true,
+                hasRoomAccess: true,
                 // currentRoom: payload.current_room,
                 rooms: payload.rooms,
 
@@ -124,6 +138,38 @@ export default function (state = initialState, action) {
                 ...state,
                 roomFetched: true,
                 currentRoom: null,
+            }
+
+        case ROOM_CHECK_PASSWORD:
+        case ROOM_CHANGE_REQUEST:
+            return {
+                ...state,
+                hasRoomAccess: true,
+                changingRoom: true
+            }
+
+        case ROOM_ACCESS_GRANTED:
+            return {
+                ...state,
+                hasRoomAccess: true,
+                changingRoom: false
+            }
+
+        case ROOM_PASSWORD_CORRECT:
+            return {
+                ...state,
+                changingRoom: true,
+                hasRoomAccess: false,
+                roomPasswordCorrect: true
+            }
+
+        case ROOM_ACCESS_DENIED:
+        case ROOM_PASSWORD_INCORRECT:
+            return {
+                ...state,
+                hasRoomAccess: false,
+                changingRoom: false,
+                roomPasswordCorrect: false
             }
 
         case LOGOUT:

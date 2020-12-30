@@ -60,11 +60,17 @@ class Room(CommonInfo):
     def __str__(self):
         return f'{self.workspace} {self.name}'
 
-    def has_room_access(self, user):
+    def user_has_access(self, user):
         return (not self.is_private and self.password == "") or self.users.filter(email=user.email) or self.host == user
 
     def last_n_messages(self, n=10):
-        return self.messages.all()[:n]
+        # messages = self.messages.all()
+        # count = messages.count()
+        # if count < n:
+        #     return messages
+        # return messages[count - n:]
+        messages = self.messages.all()
+        return messages[max(0, messages.count()-n):]
 
 
 class Message(models.Model):
@@ -73,3 +79,5 @@ class Message(models.Model):
     room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='messages')
     timestamp = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ('timestamp', )

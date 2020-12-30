@@ -43,14 +43,11 @@ class WebSocketService {
     }
 
     socketNewMessage(data) {
-        console.log('socket new messages')
         const parsedData = JSON.parse(data);
         const command = parsedData.command;
         if (command === "messages") {
-            console.log('messages')
             this.callbacks[command](parsedData.messages);
         } else if (command === "new_message") {
-            console.log('new_message')
             this.callbacks[command](parsedData.message);
         }
     }
@@ -66,10 +63,8 @@ class WebSocketService {
 
     sendMessage(data) {
         // dispatch message sending
-        console.log('sending message')
         try {
             this.socketRef.send(JSON.stringify({...data}));
-            console.log('msg sent success')
             // dispatch message sent success
         } catch (err) {
             console.log(err.message);

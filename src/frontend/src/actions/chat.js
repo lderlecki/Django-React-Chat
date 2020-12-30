@@ -9,7 +9,16 @@ import {
     ROOMS_LOADED_SUCCESS,
     ROOMS_LOADED_FAIL, ROOMS_LOADING,
     CHANGING_ROOM,
-    FETCH_ROOM_REQUEST, ROOM_FETCH_FAILED, ROOM_FETCH_SUCCESS, MESSAGE_RECEIVED,
+    FETCH_ROOM_REQUEST,
+    ROOM_FETCH_FAILED,
+    ROOM_FETCH_SUCCESS,
+    MESSAGE_RECEIVED,
+    ROOM_ACCESS_GRANTED,
+    ROOM_ACCESS_DENIED,
+    ROOM_CHANGE_REQUEST,
+    ROOM_CHECK_PASSWORD,
+    ROOM_PASSWORD_CORRECT,
+    ROOM_PASSWORD_INCORRECT,
 } from './types'
 import {getCookie} from "./utils";
 
@@ -83,7 +92,41 @@ export const fetchRoom = (workspaceCode, roomCode) => async dispatch => {
             type: ROOM_FETCH_FAILED
         })
     }
+}
 
+export const checkUserHasRoomAccess = (room_code) => async dispatch => {
+    dispatch({
+        type: ROOM_CHANGE_REQUEST
+    })
+    try {
+        const response = await axios.get(`/api/workspace/room/${room_code}/verify/`, authConfig)
+        dispatch({
+            type: ROOM_ACCESS_GRANTED
+        })
+    } catch (err) {
+        console.log('User does not have access to this room, must provide a password')
+        dispatch({
+            type: ROOM_ACCESS_DENIED
+        })
+    }
+}
+
+export const enterRoomWithPassword = (room_code, password) => async dispatch => {
+    dispatch({
+        type: ROOM_CHECK_PASSWORD
+    })
+    const body = JSON.stringify({password})
+    try {
+        await axios.post(`/api/workspace/room/${room_code}/verify/`, body, authConfig)
+        dispatch({
+            type: ROOM_PASSWORD_CORRECT
+        })
+        dispatch(checkUserHasRoomAccess(room_code))
+    } catch (err) {
+        dispatch({
+            type: ROOM_PASSWORD_INCORRECT
+        })
+    }
 }
 
 export const createWorkspace = (name, is_private, password) => async dispatch => {

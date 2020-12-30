@@ -7,6 +7,12 @@ from .serializers import MessageSerializer
 
 
 class ChatConsumer(AsyncJsonWebsocketConsumer):
+    # TODO:
+    #  1. Add messages pagination, on scroll up render next messages page
+    #  2. Add user joined/left chat notification
+    #  3. Add user status tracking (online, currently in room)
+    #  4. Add unread messages notification
+    #  5. Add Room join request/invitation notification
 
     async def _get_message_data(self, message):
         return MessageSerializer(message).data

@@ -3,8 +3,7 @@ import {Link} from "react-router-dom";
 import {connect} from 'react-redux';
 import {logout} from '../actions/auth'
 import {AppBar, Button, IconButton, makeStyles, Menu, MenuItem, Toolbar, Typography} from "@material-ui/core";
-import MenuIcon from '@material-ui/icons/Menu'
-import {AccountCircle} from "@material-ui/icons";
+
 
 const useStyles = makeStyles((theme) => ({
     root: {
