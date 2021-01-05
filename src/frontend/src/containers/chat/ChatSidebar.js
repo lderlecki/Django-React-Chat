@@ -1,35 +1,49 @@
 import React, {Component, useEffect, useRef, useState} from 'react';
+import {connect} from "react-redux";
+import {Link, Redirect, useHistory} from "react-router-dom";
 
 import {
+    Button,
     CircularProgress,
     CssBaseline,
     Divider,
     Drawer,
     List,
-    ListItem,
-    ListItemText,
+    ListItem, ListItemAvatar,
+    ListItemText, ListSubheader,
     makeStyles,
-    TextField,
+    TextField, Tooltip,
     Typography,
 } from "@material-ui/core";
-import {Link, Redirect, useHistory} from "react-router-dom";
+
+import LockIcon from '@material-ui/icons/Lock';
+import LockOpenOutlinedIcon from '@material-ui/icons/LockOpenOutlined';
+import ChatOutlinedIcon from '@material-ui/icons/ChatOutlined';
+import AddIcon from '@material-ui/icons/Add';
+
 import RoomPasswordFormDialog from "../../components/RoomPasswordDialog";
 import history from "../../Routers/history";
-import {connect} from "react-redux";
-
+import {ROOM_PASSWORD_REQUIRED} from "../../components/tooltips";
 
 const styles = makeStyles((theme) => ({
     drawerPaper: {
         position: 'relative',
         height: '100%',
         width: 320,
-        backgroundColor: '#b7c3e1'
+        backgroundColor: '#A3B0FB'
     },
     drawerHeader: {
         ...theme.mixins.toolbar,
         paddingLeft: theme.spacing.unit * 3,
         paddingRight: theme.spacing.unit * 3,
+        paddingTop: theme.spacing.unit * 2,
+        paddingBottom: theme.spacing.unit,
     },
+    roomAddBtn: {
+        display: "flex",
+        alignItems: "center",
+        marginLeft: "auto",
+    }
 
 }))
 
@@ -42,9 +56,9 @@ const ChatSidebar = ({chat, workspace, rooms, currentRoom, fetchRoom, verifyAcce
         verifyAccess(roomCode)
     }
 
-    if(!chat.changingRoom && chat.hasRoomAccess) {
+    if (!chat.changingRoom && chat.hasRoomAccess) {
         if (roomCode !== currentRoom.code) {
-            history.push(`/${chat.workspace}/${roomCode}`)
+            history.push(`/${chat.workspace.code}/${roomCode}`)
         }
     }
 
@@ -69,21 +83,50 @@ const ChatSidebar = ({chat, workspace, rooms, currentRoom, fetchRoom, verifyAcce
                 }
                 {/* --------------------------------- */}
                 <div className={classes.drawerHeader}>
-                    <TextField
-                        fullWidth
-                        margin="normal"
-                        placeholder=""
-                        value={workspace}
-                    />
+                    <Typography component={'h5'} variant={'h5'}>
+                        {workspace.name}
+                    </Typography>
                 </div>
                 <Divider/>
-                <List>
+                <List
+                    subheader={
+                        <ListSubheader component="div" id="nested-list-subheader">
+                            <div style={{display: "flex", flexDirection: "row"}}>
+                                <span>Rooms</span>
+                                <div className={classes.roomAddBtn}>
+                                    <Button
+                                        style={{height: "1.5em"}}
+                                        component={Link}
+                                        to={{
+                                            pathname: `/${workspace.code}/create`,
+                                            query: chat.currentRoom,
+
+                                        }}
+                                    >
+                                        <AddIcon/>
+                                    </Button>
+                                </div>
+                            </div>
+
+                        </ListSubheader>
+                    }
+                >
+                    <Divider/>
                     {rooms && rooms.length ? (
                         rooms.map(room => (
                             <ListItem button onClick={() => {
                                 setRoomCode(room.code)
                                 onRoomChange(room.code)
                             }}>
+                                <ListItemAvatar>
+                                    {room.has_access ? (
+                                        room.has_password ? <LockOpenOutlinedIcon/> : <ChatOutlinedIcon/>
+                                    ) : (
+                                        <Tooltip title={ROOM_PASSWORD_REQUIRED}>
+                                            <LockIcon/>
+                                        </Tooltip>
+                                    )}
+                                </ListItemAvatar>
                                 <ListItemText primary={room.name} secondary={room.code}/>
                             </ListItem>
                         ))
@@ -96,7 +139,8 @@ const ChatSidebar = ({chat, workspace, rooms, currentRoom, fetchRoom, verifyAcce
 
                 </List>
             </Drawer>
-        )}
+        )
+    }
 
     return (
         showDrawer()

@@ -59,6 +59,7 @@ export const load_rooms_in_workspace = (workspaceCode) => async dispatch => {
 
     try {
         const response = await axios.get(`/api/workspace/${workspaceCode}/`, authConfig)
+        console.log('load rooms in workspace: ', response)
         dispatch({
             type: ROOMS_LOADED_SUCCESS,
             payload: response.data

@@ -10,12 +10,15 @@ import {
     TextField,
     Typography,
     Checkbox,
-    FormControlLabel, Tooltip
+    FormControlLabel,
+    Tooltip, InputAdornment,
 } from "@material-ui/core";
-import {WORKSPACE_PRIVATE_TOOLTIP} from "./tooltips";
+import LockRoundedIcon from '@material-ui/icons/LockRounded';
+import InfoRoundedIcon from '@material-ui/icons/InfoRounded';
+import {WORKSPACE_PRIVATE_TOOLTIP} from "../../components/tooltips";
 import {createRoom} from "../../actions/chat";
 
-const RoomCreate = ({createRoom, workspace, room, errorMsg }) => {
+const RoomCreate = ({match, createRoom, room, errorMsg, previousRoom=null}) => {
     const [roomCreated, setRoomCreated] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
@@ -28,17 +31,28 @@ const RoomCreate = ({createRoom, workspace, room, errorMsg }) => {
         setFormData({...formData, [e.target.name]: e.target.checked});
     };
 
+     if (roomCreated) {
+        if (previousRoom){
+            if (room.code !== previousRoom.code){
+                return <Redirect to={`/${match.params.workspace}/${room.code}`}/>
+            }
+        } else {
+            if (room){
+                return <Redirect to={`/${match.params.workspace}/${room.code}`}/>
+            }
+        }
+
+    }
     const onSubmit = e => {
+
         e.preventDefault();
-        createRoom(name, is_private, password, workspace);
-        setRoomCreated(true);
+        createRoom(name, is_private, password, match.params.workspace)
+            .then(() => {
+                setRoomCreated(true);
+            });
     };
 
-    if (roomCreated) {
-        if (room) {
-            return <Redirect to={`/${workspace}/${room}`} />
-        }
-    }
+
 
     return (
         <Container maxWidth='xs'>
@@ -63,6 +77,13 @@ const RoomCreate = ({createRoom, workspace, room, errorMsg }) => {
                             type='text'
                             name='name'
                             value={name}
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position='start'>
+                                        <InfoRoundedIcon/>
+                                    </InputAdornment>
+                                )
+                            }}
                             onChange={e => onChange(e)}/>
                     </FormControl>
                     <FormControl component="fieldset">
@@ -77,12 +98,19 @@ const RoomCreate = ({createRoom, workspace, room, errorMsg }) => {
                             name='password'
                             minLength='6'
                             value={password}
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position='start'>
+                                        <LockRoundedIcon/>
+                                    </InputAdornment>
+                                )
+                            }}
                             onChange={e => onChange(e)}/>
                     </FormControl>
                     <FormControl component="fieldset" align='left'>
                         <Tooltip title={WORKSPACE_PRIVATE_TOOLTIP}>
                             <FormControlLabel
-                                style={{display: "inline-flex", flexDirection:"row", margin: '0', padding: '10px 0'}}
+                                style={{display: "inline-flex", flexDirection: "row", margin: '0', padding: '10px 0'}}
                                 value="start"
                                 control={
                                     <Checkbox name='is_private'
@@ -104,7 +132,6 @@ const RoomCreate = ({createRoom, workspace, room, errorMsg }) => {
 }
 
 const mapStateToProps = state => ({
-    workspace: state.chat.workspace,
     room: state.chat.currentRoom,
     errorMsg: state.auth.errorMsg,
 

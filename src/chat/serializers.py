@@ -32,7 +32,7 @@ class RoomSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Room
-        fields = ('name', 'host', 'is_private', 'users', 'code')
+        fields = ('name', 'host', 'is_private', 'users', 'code', 'has_password')
 
 
 class MessageSerializer(serializers.ModelSerializer):
@@ -44,7 +44,6 @@ class MessageSerializer(serializers.ModelSerializer):
 
 
 class RoomDetailSerializer(serializers.ModelSerializer):
-    # messages = MessageSerializer(required=False, many=True)
     users = RoomMemberSerializer(required=False, many=True)
     host = RoomMemberSerializer()
 

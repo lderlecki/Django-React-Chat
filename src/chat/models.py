@@ -39,6 +39,11 @@ class CommonInfo(models.Model):
     def is_owner(self, user):
         return self.host == user
 
+    def user_has_access(self, user):
+        return (not self.is_private and self.password == "") or \
+               self.users.filter(email=user.email).exists() or \
+               self.is_owner(user)
+
 
 class Workspace(CommonInfo):
     """
@@ -60,17 +65,18 @@ class Room(CommonInfo):
     def __str__(self):
         return f'{self.workspace} {self.name}'
 
-    def user_has_access(self, user):
-        return (not self.is_private and self.password == "") or self.users.filter(email=user.email) or self.host == user
+    # def user_has_access(self, user):
+    #     return (not self.is_private and self.password == "") or \
+    #            self.users.filter(email=user.email).exists() or \
+    #            self.host == user
 
     def last_n_messages(self, n=10):
-        # messages = self.messages.all()
-        # count = messages.count()
-        # if count < n:
-        #     return messages
-        # return messages[count - n:]
         messages = self.messages.all()
         return messages[max(0, messages.count()-n):]
+
+    @property
+    def has_password(self):
+        return self.password is not None and self.password != ''
 
 
 class Message(models.Model):

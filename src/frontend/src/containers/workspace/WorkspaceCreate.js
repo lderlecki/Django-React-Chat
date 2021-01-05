@@ -12,7 +12,7 @@ import {
     FormControlLabel,
     Tooltip
 } from "@material-ui/core";
-import {WORKSPACE_PRIVATE_TOOLTIP} from "./tooltips";
+import {WORKSPACE_PRIVATE_TOOLTIP} from "../../components/tooltips";
 import {createWorkspace} from "../../actions/chat";
 
 const WorkspaceCreate = ({ createWorkspace, workspace, room, errorMsg }) => {
@@ -36,7 +36,7 @@ const WorkspaceCreate = ({ createWorkspace, workspace, room, errorMsg }) => {
 
     if (workspaceCreated) {
         if (workspace && room) {
-            return <Redirect to={`/${workspace}/${room}`} />
+            return <Redirect to={`/${workspace.code}/${room}`} />
         }
     }
 

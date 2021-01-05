@@ -23,7 +23,7 @@ const RoomPasswordFormDialog = ({history, chat, roomCode, enterRoomWithPassword}
     }
 
     if (!chat.changingRoom && chat.roomPasswordCorrect) {
-        history.push(`/${chat.workspace}/${roomCode}`)
+        history.push(`/${chat.workspace.code}/${roomCode}`)
     }
 
 

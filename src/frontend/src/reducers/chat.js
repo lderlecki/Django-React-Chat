@@ -81,10 +81,8 @@ export default function (state = initialState, action) {
         case ROOM_CREATE_SUCCESS:
             return {
                 ...state,
-                workspace: payload.workspace,
-                workspaces: [...state.workspaces, payload],
-                room: null,
-                isWorkspaceOwner: payload.is_owner,
+                rooms: [...state.rooms, payload],
+                currentRoom: payload,
             }
 
         case ROOM_CREATE_FAIL:
@@ -109,7 +107,7 @@ export default function (state = initialState, action) {
         case ROOMS_LOADED_SUCCESS:
             return {
                 ...state,
-                workspace: payload.code,
+                workspace: payload,
                 roomsLoaded: true,
                 hasRoomAccess: true,
                 // currentRoom: payload.current_room,
@@ -181,7 +179,6 @@ export default function (state = initialState, action) {
             return {
                 ...state,
                 currentRoom: {
-
                     messages: [...state.currentRoom.messages, payload]
                 },
             }

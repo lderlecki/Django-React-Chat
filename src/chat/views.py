@@ -72,17 +72,17 @@ class WorkspaceDetailView(APIView):
         data = WorkspaceDetailSerializer(ret_workspace).data
         for room in data.get('rooms', []):
             host = room.get('host')
+
+            # Is request user a room host?
             room['is_owner'] = request.user.email == host.get('email') if host else False
 
-        # if rooms := data.get('rooms'):
-        #     current_room = rooms[0]
-        #     current_room_obj = Room.objects.get(code=current_room.get('code'))
-        #     data['current_room'] = RoomDetailSerializer(current_room_obj).data
-        # else:
-        #     data['current_room'] = None
+            # If given room is in user rooms set it means, that the user has access to this room
+            room['has_access'] = \
+                request.user.rooms.filter(code=room.get('code')).exists() \
+                or Room.objects.filter(code=room.get('code'), host=request.user).exists()
 
+        # Is request user a workspace host?
         data['is_owner'] = ret_workspace.is_owner(request.user)
-
         return Response(data, status=status.HTTP_200_OK)
 
 
@@ -112,10 +112,12 @@ class RoomCreateView(APIView):
         if serializer.is_valid():
             name = serializer.validated_data.pop('name', None)
             new_name = name
-            workspace = request.user.workspace_set.filter(code=workspace_code)
+            workspace = Workspace.objects.filter(code=workspace_code)
 
+            print(workspace)
+            print(workspace_code)
             # Verify that the user is a member of the workspace where they want to create the room
-            if not workspace:
+            if not workspace.exists() or not workspace[0].user_has_access(request.user):
                 return Response(
                     {'workspace': 'You cannot create a room for that workspace.'},
                     status=status.HTTP_404_NOT_FOUND

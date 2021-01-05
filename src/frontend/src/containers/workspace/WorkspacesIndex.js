@@ -39,7 +39,7 @@ const useStyles = makeStyles({
         transition: "all .75s ease",
         display: "block",
         '&:hover': {
-            backgroundColor: '#b7c3e1',
+            backgroundColor: '#A3B0FB',
         }
 
     },
@@ -50,7 +50,7 @@ const useStyles = makeStyles({
         borderRadius: '5px',
         padding: '16px 25px',
         justifyContent: "space-between",
-        backgroundColor: '#b7c3e1',
+        backgroundColor: '#A3B0FB',
     }
 })
 
