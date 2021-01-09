@@ -7,7 +7,23 @@ from .models import Workspace, Room, Message
 User = get_user_model()
 
 
+class RoomMemberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('email', 'name', 'last_login')
+
+
+class WorkspaceSearchSerializer(serializers.ModelSerializer):
+    host = RoomMemberSerializer()
+    users = RoomMemberSerializer(required=False, many=True)
+
+    class Meta:
+        model = Workspace
+        fields = ('name', 'host', 'is_private', 'users', 'code', 'members', 'has_password')
+
+
 class WorkspaceSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Workspace
         fields = ('name', 'host', 'is_private', 'users', 'code')
@@ -18,12 +34,6 @@ class WorkspaceCreateSerializer(serializers.ModelSerializer):
         model = Workspace
         fields = ('name', 'is_private', 'password')
         extra_kwargs = {'password': {'write_only': True}}
-
-
-class RoomMemberSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('email', 'name', 'last_login')
 
 
 class RoomSerializer(serializers.ModelSerializer):

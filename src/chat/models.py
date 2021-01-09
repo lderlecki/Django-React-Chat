@@ -36,6 +36,10 @@ class CommonInfo(models.Model):
     class Meta:
         abstract = True
 
+    @property
+    def has_password(self):
+        return self.password is not None and self.password != ''
+
     def is_owner(self, user):
         return self.host == user
 
@@ -43,6 +47,9 @@ class CommonInfo(models.Model):
         return (not self.is_private and self.password == "") or \
                self.users.filter(email=user.email).exists() or \
                self.is_owner(user)
+
+    def check_password(self, password):
+        return self.password == password
 
 
 class Workspace(CommonInfo):
@@ -56,6 +63,11 @@ class Workspace(CommonInfo):
     def __str__(self):
         return self.name
 
+    @property
+    def members(self):
+        # +1 because every workspace has a host
+        return self.users.count() + 1
+
 
 class Room(CommonInfo):
     users = models.ManyToManyField('accounts.User', blank=True, related_name='rooms')
@@ -65,18 +77,14 @@ class Room(CommonInfo):
     def __str__(self):
         return f'{self.workspace} {self.name}'
 
-    # def user_has_access(self, user):
-    #     return (not self.is_private and self.password == "") or \
-    #            self.users.filter(email=user.email).exists() or \
-    #            self.host == user
-
     def last_n_messages(self, n=10):
         messages = self.messages.all()
         return messages[max(0, messages.count()-n):]
 
     @property
-    def has_password(self):
-        return self.password is not None and self.password != ''
+    def members(self):
+        # +1 because every room has a host
+        return self.users.count() + 1
 
 
 class Message(models.Model):

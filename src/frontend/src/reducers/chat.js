@@ -15,7 +15,16 @@ import {
     ROOM_FETCH_FAILED,
     MESSAGE_RECEIVED,
     ROOM_CHANGE_REQUEST,
-    ROOM_ACCESS_GRANTED, ROOM_ACCESS_DENIED, ROOM_PASSWORD_INCORRECT, ROOM_CHECK_PASSWORD, ROOM_PASSWORD_CORRECT,
+    ROOM_ACCESS_GRANTED,
+    ROOM_ACCESS_DENIED,
+    ROOM_PASSWORD_INCORRECT,
+    ROOM_CHECK_PASSWORD,
+    ROOM_PASSWORD_CORRECT,
+    SEARCH_WORKSPACES_SUCCESS,
+    SEARCH_WORKSPACES_FAILED,
+    JOIN_WORKSPACE_REQUEST,
+    JOIN_WORKSPACE_SUCCESS,
+    JOIN_WORKSPACE_FAILED, SEARCH_WORKSPACES_REQUEST,
 } from "../actions/types";
 
 const initialState = {
@@ -37,6 +46,9 @@ const initialState = {
     socket: {
         isFetching: false
     },
+
+    searchWorkspaces: [],
+
 }
 
 export default function (state = initialState, action) {
@@ -158,7 +170,11 @@ export default function (state = initialState, action) {
                 ...state,
                 changingRoom: true,
                 hasRoomAccess: false,
-                roomPasswordCorrect: true
+                roomPasswordCorrect: true,
+                rooms: state.rooms.map(
+                    content => content.code === payload.code ? {...content, has_access: payload.has_access} : content
+
+                )
             }
 
         case ROOM_ACCESS_DENIED:
@@ -168,6 +184,34 @@ export default function (state = initialState, action) {
                 hasRoomAccess: false,
                 changingRoom: false,
                 roomPasswordCorrect: false
+            }
+
+        case SEARCH_WORKSPACES_SUCCESS:
+            return {
+                ...state,
+                searchWorkspaces: payload
+            }
+
+        case SEARCH_WORKSPACES_FAILED:
+            return {
+                ...state,
+                searchWorkspaces: []
+            }
+
+        case SEARCH_WORKSPACES_REQUEST:
+        case JOIN_WORKSPACE_REQUEST:
+        case JOIN_WORKSPACE_FAILED:
+            return {
+                ...state,
+                workspace: null,
+                workspaceJoined: false,
+            }
+
+        case JOIN_WORKSPACE_SUCCESS:
+            return {
+                ...state,
+                workspace: payload.workspace_code,
+                workspaceJoined: true
             }
 
         case LOGOUT:

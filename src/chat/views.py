@@ -1,5 +1,5 @@
 from django.db.models import Q, Prefetch
-from rest_framework import status
+from rest_framework import status, generics, filters
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -10,7 +10,7 @@ from .serializers import (
     WorkspaceSerializer,
     RoomCreateSerializer,
     RoomSerializer,
-    WorkspaceDetailSerializer, MessageSerializer, RoomDetailSerializer
+    WorkspaceDetailSerializer, MessageSerializer, RoomDetailSerializer, WorkspaceSearchSerializer
 )
 
 
@@ -38,7 +38,7 @@ class WorkspaceCreateView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class WorkspaceListView(APIView):
+class UserWorkspaceListView(APIView):
     def get(self, request):
         # Check if request user is a member of a workspace with a given code
         workspaces = Workspace.objects.filter(
@@ -50,11 +50,24 @@ class WorkspaceListView(APIView):
         return Response(WorkspaceSerializer(workspaces, many=True).data, status=status.HTTP_200_OK)
 
 
+class WorkspaceSearchAPIView(generics.ListAPIView):
+    serializer_class = WorkspaceSearchSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name', ]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Workspace.objects.filter(
+            Q(is_private=False) &
+            ~Q(users=user) &
+            ~Q(host=user),
+        ).distinct()
+
+
 class WorkspaceDetailView(APIView):
     def get(self, request, workspace_code):
         workspace = Workspace.objects.filter(code=workspace_code).prefetch_related(
             Prefetch('room_set', queryset=Room.objects.filter(
-                # Q(is_private=False) & Q(password=None) |
                 Q(is_private=False) |
                 Q(users=request.user) |
                 Q(host=request.user),
@@ -138,6 +151,38 @@ class RoomCreateView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class WorkspaceJoinView(APIView):
+    def post(self, request, workspace_code):
+        workspace = Workspace.objects.filter(code=workspace_code)
+        if not workspace.exists():
+            return Response(
+                {'workspace': 'Such workspace does not exist.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        workspace_obj = workspace[0]
+
+        if workspace_obj.user_has_access(request.user):
+            return Response({'workspace': 'You are already a member of this room.'}, status=status.HTTP_200_OK)
+
+        if workspace_obj.is_private:
+            # No workspace invitation logic yet
+            return Response(
+                {'workspace': 'You are not allowed to join this workspace.'}, status=status.HTTP_403_FORBIDDEN
+            )
+
+        if workspace_obj.has_password:
+            password = request.data.get('password', None)
+            if not password or not workspace_obj.check_password(password):
+                return Response(
+                    {'workspace': 'Incorrect password.'}, status=status.HTTP_403_FORBIDDEN
+                )
+
+        workspace_obj.users.add(request.user)
+        return Response(
+            {'workspace': 'User joined successfully.', 'workspace_code': workspace_obj.code}, status=status.HTTP_200_OK
+        )
+
+
 class RoomWithPasswordView(APIView):
     """API View for verifying if a user has access to the password-protected room with given code"""
 
@@ -172,9 +217,15 @@ class RoomWithPasswordView(APIView):
         if room_obj.user_has_access(request.user):
             return Response({'room': 'User already has access to this room.'}, status=status.HTTP_200_OK)
 
-        room_password = request.data.get('password')
-        if room_obj.password != room_password:
+        request_password = request.data.get('password')
+        # if room_obj.password != request_password:
+        if not room_obj.check_password(request_password):
             raise ValidationError({'room': 'Password is incorrect'})
-        room_obj.users.add(request.user)
 
-        return Response({'room': 'The user has joined the room successfully.'}, status=status.HTTP_200_OK)
+        room_obj.users.add(request.user)
+        return Response({
+            'room': 'The user has joined the room successfully.',
+            'code': room_obj.code,
+            'has_access': True,
+        }, status=status.HTTP_200_OK
+        )

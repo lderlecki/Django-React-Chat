@@ -1,3 +1,5 @@
+import React from "react";
+
 import Layout from "../hocs/Layout";
 import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
 
@@ -11,11 +13,11 @@ import WorkspaceCreate from "../containers/workspace/WorkspaceCreate";
 import ChatPage from "../containers/chat/ChatPage";
 import RoomCreate from "../containers/workspace/RoomCreate";
 import Home from "../containers/Home";
-import React from "react";
 import PrivateRoute from "./PrivateRoute";
 import WorkspaceVerify from "../containers/workspace/WorkspaceVerify";
 
 import history from "./history";
+import Search from "../containers/Search";
 
 const AppRouter = () => (
     <Router history={history}>
@@ -29,6 +31,7 @@ const AppRouter = () => (
 
                 <PrivateRoute exact path='/workspaces' component={WorkspacesIndex}/>
                 <PrivateRoute exact path='/workspaces/create' component={WorkspaceCreate}/>
+                <PrivateRoute exact path='/search' component={Search}/>
 
                 <PrivateRoute exact path='/:workspace' component={WorkspaceVerify}/>
                 <PrivateRoute exact path='/:workspace/create' component={RoomCreate}/>

@@ -19,6 +19,12 @@ import {
     ROOM_CHECK_PASSWORD,
     ROOM_PASSWORD_CORRECT,
     ROOM_PASSWORD_INCORRECT,
+    SEARCH_WORKSPACES_REQUEST,
+    SEARCH_WORKSPACES_FAILED,
+    SEARCH_WORKSPACES_SUCCESS,
+    JOIN_WORKSPACE_REQUEST,
+    JOIN_WORKSPACE_SUCCESS,
+    JOIN_WORKSPACE_FAILED,
 } from './types'
 import {getCookie} from "./utils";
 
@@ -59,7 +65,6 @@ export const load_rooms_in_workspace = (workspaceCode) => async dispatch => {
 
     try {
         const response = await axios.get(`/api/workspace/${workspaceCode}/`, authConfig)
-        console.log('load rooms in workspace: ', response)
         dispatch({
             type: ROOMS_LOADED_SUCCESS,
             payload: response.data
@@ -67,6 +72,48 @@ export const load_rooms_in_workspace = (workspaceCode) => async dispatch => {
     } catch (err) {
         dispatch({
             type: ROOMS_LOADED_FAIL
+        })
+    }
+}
+
+export const searchWorkspaces = (q) => async dispatch => {
+    dispatch({
+        type: SEARCH_WORKSPACES_REQUEST
+    })
+
+    if (q) {
+        try {
+            const response = await axios.get(`/api/workspace/${q}`, authConfig)
+            dispatch({
+                type: SEARCH_WORKSPACES_SUCCESS,
+                payload: response.data
+            })
+
+        } catch (err) {
+            dispatch({
+                type: SEARCH_WORKSPACES_FAILED
+            })
+        }
+    }
+
+}
+
+export const joinWorkspace = (workspaceCode, password = null) => async dispatch => {
+    dispatch({
+        type: JOIN_WORKSPACE_REQUEST
+    })
+
+    const body = JSON.stringify({password})
+    try {
+        const response = await axios.post(`/api/workspace/${workspaceCode}/join/asdfasd/`, body, authConfig)
+        console.log(response)
+        dispatch({
+            type: JOIN_WORKSPACE_SUCCESS,
+            payload: response.data
+        })
+    } catch (err) {
+        dispatch({
+            type: JOIN_WORKSPACE_FAILED
         })
     }
 }
@@ -118,9 +165,11 @@ export const enterRoomWithPassword = (room_code, password) => async dispatch => 
     })
     const body = JSON.stringify({password})
     try {
-        await axios.post(`/api/workspace/room/${room_code}/verify/`, body, authConfig)
+        const response = await axios.post(`/api/workspace/room/${room_code}/verify/`, body, authConfig)
+        console.log(response.data)
         dispatch({
-            type: ROOM_PASSWORD_CORRECT
+            type: ROOM_PASSWORD_CORRECT,
+            payload: response.data
         })
         dispatch(checkUserHasRoomAccess(room_code))
     } catch (err) {
